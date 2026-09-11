@@ -5,3 +5,9 @@ google-adk>=1.0.0
 python-multipart>=0.0.7
 beautifulsoup4>=4.12.0
 httpx>=0.27.0
+chromadb>=1.5.9,<1.6.0
+# Pinned so tensorflow/openai-style otel constraints do not clash with google-adk (requires <=1.42.1).
+opentelemetry-api==1.42.1
+opentelemetry-sdk==1.42.1
+opentelemetry-exporter-otlp-proto-grpc==1.42.1
+pytest>=8.0

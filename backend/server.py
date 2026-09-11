@@ -138,11 +138,18 @@ async def _run_adk_agent(question: str, retrieval: dict[str, Any]) -> str:
 
 @app.get("/health")
 async def health():
+    try:
+        space_info = await run_in_threadpool(RAG_STORE.space_tool)
+    except Exception as exc:
+        space_info = {"storage": "unavailable", "storage_error": str(exc)}
+    else:
+        space_info["storage"] = "ok" if not RAG_STORE.chroma_error else "unavailable"
+        space_info["persist_directory"] = RAG_STORE.persist_directory
     return {
         "status": "ok" if ADK_AVAILABLE and not SETUP_ERROR else "setup_required",
         "adk": ADK_AVAILABLE,
         "setup_error": SETUP_ERROR,
-        **await run_in_threadpool(RAG_STORE.space_tool),
+        **space_info,
     }
 
 
@@ -203,7 +210,10 @@ async def add_file_source(
 
 @app.delete("/sources/{source_id}")
 async def delete_source(source_id: str):
-    removed = await run_in_threadpool(RAG_STORE.remove_source, source_id)
+    try:
+        removed = await run_in_threadpool(RAG_STORE.remove_source, source_id)
+    except Exception as exc:
+        raise HTTPException(503, str(exc)) from exc
     if not removed:
         raise HTTPException(404, "Source not found.")
     return {"deleted": source_id, "space": await run_in_threadpool(RAG_STORE.snapshot)}
@@ -214,8 +224,11 @@ async def ask(req: AskRequest):
     if not req.question.strip():
         raise HTTPException(400, "Question is required.")
 
-    retrieval = await run_in_threadpool(RAG_STORE.search, req.question, req.top_k)
-    retrieval_payload = RAG_STORE.retrieval_payload(retrieval)
+    try:
+        retrieval = await run_in_threadpool(RAG_STORE.search, req.question, req.top_k)
+        retrieval_payload = RAG_STORE.retrieval_payload(retrieval)
+    except Exception as exc:
+        raise HTTPException(503, f"Retrieval failed: {exc}") from exc
     answer = await _run_adk_agent(req.question, retrieval_payload)
     trace = [
         {

@@ -8,7 +8,7 @@ The UI includes a 3D embedding view for inspecting the search space. Each source
 
 ## What It Does
 
-- Adds and removes multimodal sources from a local in-memory index.
+- Adds and removes multimodal sources from a local persistent (ChromaDB) index.
 - Uses Gemini Embedding 2 for source and query embeddings.
 - Requires `GOOGLE_API_KEY`; the app does not use local vector or answer fallbacks.
 - Retrieves evidence with cosine similarity over the stored embeddings.
@@ -22,7 +22,7 @@ The UI includes a 3D embedding view for inspecting the search space. Each source
 | --- | --- |
 | React + Vite frontend | Source manager, Q&A panel, citations, trace, and 3D embedding view |
 | FastAPI backend | Ingestion, retrieval, answer API, and embedding-space snapshots |
-| `MultimodalRagStore` | In-memory source metadata, chunks, embeddings, search, and PCA projection |
+| `MultimodalRagStore` | ChromaDB-persisted source metadata, chunks, embeddings, search, and PCA projection |
 | Gemini Embedding 2 | Source and query embeddings across supported modalities |
 | Google ADK agent | Answer coordinator that receives the same retrieval packet shown in the UI |
 
@@ -115,7 +115,11 @@ VITE_API_URL=http://localhost:8897 npm run dev -- --port 5177
 
 ## Notes
 
-- Storage is in memory. Restarting the backend resets the demo index.
+- Embeds are stored in a local, persistent ChromaDB database (`CHROMA_PERSIST_DIRECTORY`);
+  the persist directory survives backend restarts so indexed sources do not have to be
+  re-ingested. Defaults to `backend/chroma_db`.
+- Re-ingesting a source with the same content/title overwrites (upserts) its chunks rather
+  than creating duplicates.
 - URL ingestion blocks localhost and private IP ranges unless `ALLOW_PRIVATE_URLS=true` is set.
 - Media files uploaded through the Gemini File API are cleaned up after embedding.
 - Blocking media processing runs in a threadpool so the FastAPI event loop is not held.

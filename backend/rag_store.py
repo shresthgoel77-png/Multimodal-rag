@@ -1,3 +1,5 @@
+import hashlib
+import json
 import math
 import os
 import re
@@ -21,6 +23,9 @@ INLINE_MEDIA_LIMIT_BYTES = 18 * 1024 * 1024
 FILE_API_POLL_SECONDS = 2
 FILE_API_MAX_WAIT_SECONDS = 90
 
+CHROMA_COLLECTION = "rag_chunks"
+DEFAULT_CHROMA_DIR = Path(__file__).resolve().parent / "chroma_db"
+
 
 MODALITY_COLORS = {
     "text": "#9fc9a2",
@@ -40,7 +45,7 @@ class RackChunk:
     title: str
     modality: str
     text: str
-    vector: list[float]
+    vector: list[float] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
     created_at: float = field(default_factory=time.time)
 
@@ -54,15 +59,6 @@ class RackSource:
     chunks: int
     created_at: float = field(default_factory=time.time)
     metadata: dict[str, Any] = field(default_factory=dict)
-
-
-def _cosine(a: list[float], b: list[float]) -> float:
-    dot = sum(x * y for x, y in zip(a, b))
-    norm_a = math.sqrt(sum(x * x for x in a))
-    norm_b = math.sqrt(sum(y * y for y in b))
-    if not norm_a or not norm_b:
-        return 0.0
-    return dot / (norm_a * norm_b)
 
 
 def _clean_text(text: str) -> str:
@@ -126,14 +122,131 @@ class MultimodalRagStore:
         self._lock = threading.RLock()
         self.embedding_provider = "gemini-embedding-2"
 
-    def _require_client(self) -> genai.Client:
-        if not self.client:
-            raise RuntimeError("GOOGLE_API_KEY is required for Gemini Embedding 2.")
-        return self.client
+        self.persist_directory = os.getenv("CHROMA_PERSIST_DIRECTORY", str(DEFAULT_CHROMA_DIR))
+        self.chroma_error: str | None = None
+        self._chroma_client: Any = None
+        self._collection: Any = None
+        self._init_chroma()
+
+    def _init_chroma(self) -> None:
+        try:
+            import chromadb
+            from chromadb.config import Settings
+        except ImportError as exc:
+            self.chroma_error = (
+                "ChromaDB is not installed. Run: pip install 'chromadb>=1.5.9,<1.6.0'"
+            )
+            return
+
+        try:
+            path = Path(self.persist_directory).expanduser()
+            path.mkdir(parents=True, exist_ok=True)
+            if not os.access(path, os.W_OK):
+                raise PermissionError(f"directory exists but is not writable: {path}")
+
+            self._chroma_client = chromadb.PersistentClient(
+                path=str(path),
+                settings=Settings(anonymized_telemetry=False),
+            )
+            self._collection = self._chroma_client.get_or_create_collection(
+                name=CHROMA_COLLECTION,
+                metadata={"hnsw:space": "cosine"},
+            )
+        except Exception as exc:
+            self.chroma_error = (
+                f"ChromaDB is unavailable with CHROMA_PERSIST_DIRECTORY={self.persist_directory!r}: {exc}"
+            )
+            self._chroma_client = None
+            self._collection = None
+            return
+
+        try:
+            self._reload_from_chroma()
+        except Exception as exc:
+            self.chroma_error = (
+                f"ChromaDB could not be read from CHROMA_PERSIST_DIRECTORY={self.persist_directory!r}: {exc}"
+            )
+            self._collection = None
+            return
+
+    def _require_collection(self) -> Any:
+        if self.chroma_error:
+            raise RuntimeError(self.chroma_error)
+        if self._collection is None:
+            raise RuntimeError(f"ChromaDB storage is not available at {self.persist_directory!r}.")
+        return self._collection
+
+    def _reload_from_chroma(self) -> None:
+        collection = self._collection
+        try:
+            record = collection.get(include=["metadatas", "documents"])
+        except Exception as exc:
+            raise RuntimeError(f"ChromaDB failed to read stored chunks: {exc}") from exc
+
+        self.chunks = []
+        self.sources = []
+        by_source: dict[str, dict[str, Any]] = {}
+
+        ids = list(record.get("ids") or [])
+        documents = list(record.get("documents") or [])
+        metadatas = list(record.get("metadatas") or [])
+        for chunk_id, document, metadata in zip(ids, documents, metadatas):
+            meta = metadata or {}
+            source_id = str(meta.get("source_id", ""))
+            chunk = RackChunk(
+                id=chunk_id,
+                source_id=source_id,
+                title=str(meta.get("title", "")),
+                modality=str(meta.get("modality", "text")),
+                text=document or "",
+                vector=[],
+                metadata=dict(meta),
+                created_at=float(meta.get("created_at", 0.0) or 0.0),
+            )
+            self.chunks.append(chunk)
+            if not source_id:
+                continue
+            aggregate = by_source.get(source_id)
+            if aggregate is None:
+                aggregate = {
+                    "title": chunk.title,
+                    "modality": chunk.modality,
+                    "summary": str(meta.get("summary", "")),
+                    "created_at": chunk.created_at,
+                    "source_metadata": {},
+                }
+                try:
+                    encoded = meta.get("source_metadata")
+                    if encoded:
+                        aggregate["source_metadata"] = json.loads(encoded)
+                except (TypeError, ValueError):
+                    aggregate["source_metadata"] = {}
+                by_source[source_id] = aggregate
+            aggregate["count"] = aggregate.get("count", 0) + 1
+
+        for source_id, aggregate in by_source.items():
+            self.sources.append(
+                RackSource(
+                    id=source_id,
+                    title=aggregate["title"],
+                    modality=aggregate["modality"],
+                    summary=aggregate["summary"],
+                    chunks=int(aggregate.get("count", 0)),
+                    created_at=aggregate["created_at"],
+                    metadata=dict(aggregate.get("source_metadata", {})),
+                )
+            )
+
+    # ------------------------------------------------------------------ helpers
 
     def _emit(self, event_type: str, payload: dict[str, Any]) -> None:
         self.events.append({"type": event_type, "at": time.time(), **payload})
         self.events = self.events[-80:]
+
+    def _require_client(self) -> genai.Client:
+        if not self.client:
+            raise RuntimeError("GOOGLE_API_KEY is required for Gemini Embedding 2.")
+        return self.client
 
     def _embed_text(self, text: str, task_prefix: str) -> list[float]:
         content = f"{task_prefix}: {text}"
@@ -210,6 +323,16 @@ class MultimodalRagStore:
                 return self._embed_uploaded_file(data, mime_type, title), "gemini-file-api"
             raise
 
+    def _validate_vector(self, vector: list[float]) -> None:
+        if not isinstance(vector, (list, tuple)):
+            raise ValueError("Chunk embeddings must be provided as a vector (list of floats).")
+        if len(vector) != self.dimensions:
+            raise ValueError(
+                f"Malformed embedding for a chunk: expected {self.dimensions} dimensions, got {len(vector)}."
+            )
+        if not all(isinstance(value, (int, float)) for value in vector):
+            raise ValueError(f"Chunk embeddings must contain only numeric values, got vector of length {len(vector)}.")
+
     def _pca_projection(self, vectors: dict[str, list[float]]) -> dict[str, dict[str, float]]:
         if not vectors:
             return {}
@@ -265,17 +388,23 @@ class MultimodalRagStore:
             for item_id, values in raw.items()
         }
 
-    def _chunks_for_source(self, source_id: str) -> list[RackChunk]:
-        return [chunk for chunk in self.chunks if chunk.source_id == source_id]
-
     def _source_vector(self, source_id: str) -> list[float]:
-        chunks = self._chunks_for_source(source_id)
-        if not chunks:
+        collection = self._require_collection()
+        try:
+            record = collection.get(where={"source_id": source_id}, include=["embeddings"])
+        except Exception as exc:
+            raise RuntimeError(f"ChromaDB failed to read chunks for source {source_id}: {exc}") from exc
+
+        embeddings = record.get("embeddings")
+        if embeddings is None:
+            return [0.0] * self.dimensions
+        embeddings = list(embeddings)
+        if not embeddings:
             return [0.0] * self.dimensions
 
         vector = [0.0] * self.dimensions
-        for chunk in chunks:
-            for index, value in enumerate(chunk.vector[: self.dimensions]):
+        for embedding in embeddings:
+            for index, value in enumerate(embedding[: self.dimensions]):
                 vector[index] += value
         norm = math.sqrt(sum(value * value for value in vector)) or 1.0
         return [value / norm for value in vector]
@@ -294,96 +423,247 @@ class MultimodalRagStore:
             "preview": source.summary,
         }
 
+    @staticmethod
+    def _chunk_meta(
+        source_id: str,
+        index: int,
+        title: str,
+        modality: str,
+        created_at: float,
+        summary: str,
+        source_metadata: dict[str, Any],
+        extra: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        meta: dict[str, Any] = {
+            "source_id": source_id,
+            "chunk_index": index,
+            "title": title,
+            "modality": modality,
+            "created_at": created_at,
+            "summary": summary,
+        }
+        if source_metadata:
+            meta["source_metadata"] = json.dumps(source_metadata, sort_keys=True)
+        if extra:
+            meta.update(extra)
+        return meta
+
+    @staticmethod
+    def _source_id_for_text(title: str, text: str, modality: str) -> str:
+        canonical = f"text::{modality}::{title}::{_clean_text(text)}"
+        return hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:16]
+
+    @staticmethod
+    def _source_id_for_file(title: str, data: bytes, mime_type: str, notes: str, modality: str) -> str:
+        content_hash = hashlib.sha256(data).hexdigest()
+        canonical = f"file::{modality}::{title}::{mime_type}::{notes}::{content_hash}"
+        return hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:16]
+
+    # ------------------------------------------------------------------ ingestion
+
     def add_text_source(self, title: str, text: str, modality: str = "text", seed: bool = False) -> RackSource:
         with self._lock:
-            source_id = uuid.uuid4().hex[:10]
-            chunks = _chunk_text(text)
-            if not chunks:
+            self._require_collection()
+            chunks_text = _chunk_text(text)
+            if not chunks_text:
                 raise ValueError("Source text is empty.")
 
-            source = RackSource(
-                id=source_id,
-                title=title.strip() or f"{modality.title()} source",
+            cleaned = _clean_text(text)
+            title = title.strip() or f"{modality.title()} source"
+            source_id = self._source_id_for_text(title, cleaned, modality)
+            chunk_metadatas = [{"chunk_index": index + 1} for index in range(len(chunks_text))]
+
+            return self._ingest_chunks(
+                source_id=source_id,
+                title=title,
                 modality=modality,
-                summary=_clean_text(text)[:220],
-                chunks=len(chunks),
+                summary=cleaned[:220],
+                chunk_texts=chunks_text,
+                chunk_metadatas=chunk_metadatas,
+                source_metadata={},
+                seed=seed,
             )
-            self.sources.append(source)
-
-            for index, chunk_text in enumerate(chunks):
-                vector = self._embed_text(chunk_text, "task: retrieval document")
-                chunk = RackChunk(
-                    id=f"{source_id}-{index + 1}",
-                    source_id=source_id,
-                    title=source.title,
-                    modality=modality,
-                    text=chunk_text,
-                    vector=vector,
-                    metadata={"chunk_index": index + 1},
-                )
-                self.chunks.append(chunk)
-
-            if not seed:
-                self._emit("source_added", {"source_id": source_id, "title": source.title, "chunks": len(chunks)})
-            return source
 
     def add_file_source(self, title: str, data: bytes, mime_type: str, notes: str = "") -> RackSource:
         with self._lock:
+            self._require_collection()
             modality = self._modality_from_mime(mime_type)
-            source_id = uuid.uuid4().hex[:10]
+            title = title.strip() or "Uploaded source"
             display_text = _clean_text(notes) or f"{title} ({mime_type}) embedded natively in Gemini Embedding 2."
-            media_vector, embedding_path = self._embed_file(data, mime_type, title, display_text)
             annotation_text = _clean_text(f"{title}. {display_text}")
+
+            media_vector, embedding_path = self._embed_file(data, mime_type, title, display_text)
             annotation_vector = self._embed_text(annotation_text, "task: retrieval document")
             vector = _blend_vectors(media_vector, annotation_vector)
-            source = RackSource(
-                id=source_id,
-                title=title.strip() or "Uploaded source",
+            self._validate_vector(vector)
+
+            source_id = self._source_id_for_file(title, data, mime_type, notes, modality)
+            source_metadata = {
+                "mime_type": mime_type,
+                "bytes": len(data),
+                "embedding_path": embedding_path,
+                "annotation_blended": True,
+            }
+            chunk_metadata = {
+                "mime_type": mime_type,
+                "bytes": len(data),
+                "native_multimodal": bool(self.client),
+                "embedding_path": embedding_path,
+                "annotation_blended": True,
+            }
+
+            return self._ingest_chunks(
+                source_id=source_id,
+                title=title,
                 modality=modality,
                 summary=display_text[:220],
-                chunks=1,
-                metadata={
-                    "mime_type": mime_type,
-                    "bytes": len(data),
-                    "embedding_path": embedding_path,
-                    "annotation_blended": True,
-                },
+                chunk_texts=[display_text],
+                chunk_metadatas=[chunk_metadata],
+                source_metadata=source_metadata,
+                vectors=[vector],
+                seed=False,
             )
-            chunk = RackChunk(
-                id=f"{source_id}-1",
-                source_id=source_id,
-                title=source.title,
+
+    def _ingest_chunks(
+        self,
+        source_id: str,
+        title: str,
+        modality: str,
+        summary: str,
+        chunk_texts: list[str],
+        chunk_metadatas: list[dict[str, Any]],
+        source_metadata: dict[str, Any],
+        seed: bool,
+        vectors: list[list[float]] | None = None,
+    ) -> RackSource:
+        collection = self._require_collection()
+        existing = next((source for source in self.sources if source.id == source_id), None)
+        created_at = existing.created_at if existing else time.time()
+
+        if vectors is None:
+            vectors = []
+            for chunk_text in chunk_texts:
+                vector = self._embed_text(chunk_text, "task: retrieval document")
+                self._validate_vector(vector)
+                vectors.append(vector)
+        # For file sources the caller provides pre-blended vectors; still validate them.
+        for vector in vectors:
+            self._validate_vector(vector)
+
+        ids: list[str] = []
+        documents: list[str] = []
+        metadatas: list[dict[str, Any]] = []
+        for index, (chunk_text, extra) in enumerate(zip(chunk_texts, chunk_metadatas)):
+            ids.append(f"{source_id}::{index + 1}")
+            documents.append(chunk_text)
+            metadatas.append(
+                self._chunk_meta(source_id, index + 1, title, modality, created_at, summary, source_metadata, extra)
+            )
+
+        # Replace any previously stored chunks for this source (upsert-by-replace),
+        # so re-ingesting the same source never leaves duplicate chunks behind.
+        if existing is not None:
+            self._delete_chroma_chunks_for_source(collection, source_id)
+
+        try:
+            collection.add(ids=ids, documents=documents, metadatas=metadatas, embeddings=vectors)
+        except Exception as exc:
+            raise RuntimeError(f"ChromaDB failed to store chunks for source {source_id}: {exc}") from exc
+
+        self._rebuild_source_mirror(
+            source_id=source_id,
+            title=title,
+            modality=modality,
+            summary=summary,
+            created_at=created_at,
+            chunk_texts=chunk_texts,
+            chunk_metadatas=chunk_metadatas,
+            source_metadata=source_metadata,
+        )
+
+        if existing is not None:
+            self._emit("source_updated", {"source_id": source_id, "title": title, "chunks": len(ids)})
+        elif not seed:
+            self._emit("source_added", {"source_id": source_id, "title": title, "chunks": len(ids)})
+
+        return self._source_record(source_id)
+
+    def _delete_chroma_chunks_for_source(self, collection: Any, source_id: str) -> None:
+        try:
+            collection.delete(where={"source_id": source_id})
+        except Exception as exc:
+            raise RuntimeError(f"ChromaDB failed to delete chunks for source {source_id}: {exc}") from exc
+
+    def _rebuild_source_mirror(
+        self,
+        source_id: str,
+        title: str,
+        modality: str,
+        summary: str,
+        created_at: float,
+        chunk_texts: list[str],
+        chunk_metadatas: list[dict[str, Any]],
+        source_metadata: dict[str, Any],
+    ) -> None:
+        self.sources = [source for source in self.sources if source.id != source_id]
+        self.chunks = [chunk for chunk in self.chunks if chunk.source_id != source_id]
+
+        self.sources.append(
+            RackSource(
+                id=source_id,
+                title=title,
                 modality=modality,
-                text=display_text,
-                vector=vector,
-                metadata={
-                    "mime_type": mime_type,
-                    "bytes": len(data),
-                    "native_multimodal": bool(self.client),
-                    "embedding_path": embedding_path,
-                    "annotation_blended": True,
-                },
+                summary=summary,
+                chunks=len(chunk_texts),
+                created_at=created_at,
+                metadata=dict(source_metadata),
             )
-            self.sources.append(source)
-            self.chunks.append(chunk)
-            self._emit("source_added", {"source_id": source_id, "title": source.title, "chunks": 1})
-            return source
+        )
+        for index, (chunk_text, extra) in enumerate(zip(chunk_texts, chunk_metadatas)):
+            meta = self._chunk_meta(source_id, index + 1, title, modality, created_at, summary, source_metadata, extra)
+            self.chunks.append(
+                RackChunk(
+                    id=f"{source_id}::{index + 1}",
+                    source_id=source_id,
+                    title=title,
+                    modality=modality,
+                    text=chunk_text,
+                    vector=[],
+                    metadata=meta,
+                    created_at=created_at,
+                )
+            )
+
+    def _source_record(self, source_id: str) -> RackSource:
+        source = next((item for item in self.sources if item.id == source_id), None)
+        if source is None:
+            raise RuntimeError(f"Source {source_id} was not registered after ingestion.")
+        return source
+
+    # ------------------------------------------------------------------ deletion
 
     def remove_source(self, source_id: str) -> bool:
         with self._lock:
+            collection = self._require_collection()
             source = next((item for item in self.sources if item.id == source_id), None)
-            if not source:
+            if source is None:
                 return False
 
+            self._delete_chroma_chunks_for_source(collection, source_id)
             self.sources = [item for item in self.sources if item.id != source_id]
             self.chunks = [chunk for chunk in self.chunks if chunk.source_id != source_id]
             self._emit("source_removed", {"source_id": source_id, "title": source.title})
             return True
 
+    # ------------------------------------------------------------------ retrieval
+
     def search(self, query: str, top_k: int = 6) -> dict[str, Any]:
         with self._lock:
+            collection = self._require_collection()
             query_vector = self._embed_text(query, "task: question answering | query")
+            self._validate_vector(query_vector)
             query_id = f"query-{uuid.uuid4().hex[:8]}"
+
             source_vectors = self._source_vectors()
             projections = self._pca_projection({**source_vectors, query_id: query_vector})
             query_point = {
@@ -396,24 +676,39 @@ class MultimodalRagStore:
                 "score": 1,
                 "preview": "Query embedding projected with the active source set.",
             }
+
+            count = self._collection_count(collection)
+            if count == 0:
+                self._emit("query_embedded", {"query": query, "matches": []})
+                return {
+                    "query_point": query_point,
+                    "matches": [],
+                    "space": self.snapshot(projections=projections),
+                }
+
             source_by_id = {source.id: source for source in self.sources}
+            nearest = self._query_collection(collection, query_vector, min(top_k * 3, count))
             source_matches: dict[str, dict[str, Any]] = {}
-            for chunk in self.chunks:
-                score = round(_cosine(query_vector, chunk.vector), 4)
-                current = source_matches.get(chunk.source_id)
+            for chunk_id, text, metadata, distance in zip(
+                nearest["ids"], nearest["documents"], nearest["metadatas"], nearest["distances"]
+            ):
+                meta = metadata or {}
+                source_id = str(meta.get("source_id", ""))
+                source = source_by_id.get(source_id)
+                if source is None:
+                    continue
+                score = round(1.0 - float(distance), 4)
+                current = source_matches.get(source_id)
                 if not current or score > current["score"]:
-                    source = source_by_id.get(chunk.source_id)
-                    if not source:
-                        continue
-                    source_matches[chunk.source_id] = {
+                    source_matches[source_id] = {
                         "id": source.id,
                         "source_id": source.id,
                         "title": source.title,
                         "modality": source.modality,
-                        "text": chunk.text,
+                        "text": text,
                         "score": score,
                         "projection": projections.get(source.id, {"x": 0.0, "y": 0.0, "z": 0.0}),
-                        "metadata": {"best_chunk": chunk.id, **chunk.metadata},
+                        "metadata": {"best_chunk": chunk_id, **meta},
                     }
 
             matches = sorted(source_matches.values(), key=lambda item: item["score"], reverse=True)[:top_k]
@@ -423,6 +718,40 @@ class MultimodalRagStore:
                 "matches": matches,
                 "space": self.snapshot(projections=projections),
             }
+
+    def _collection_count(self, collection: Any) -> int:
+        try:
+            return collection.count()
+        except Exception as exc:
+            raise RuntimeError(f"ChromaDB failed to count stored chunks: {exc}") from exc
+
+    def _query_collection(self, collection: Any, vector: list[float], n_results: int) -> dict[str, list[Any]]:
+        try:
+            result = collection.query(
+                query_embeddings=[vector],
+                n_results=n_results,
+                include=["metadatas", "documents", "distances"],
+            )
+        except Exception as exc:
+            raise RuntimeError(f"ChromaDB query failed: {exc}") from exc
+        return self._normalize_query_result(result)
+
+    @staticmethod
+    def _normalize_query_result(result: Any) -> dict[str, list[Any]]:
+        def unwrap(value: Any) -> list[Any]:
+            if not value:
+                return []
+            wrapped = value if isinstance(value[0], list) else [value]
+            return wrapped[0] if wrapped else []
+
+        return {
+            "ids": unwrap(result["ids"]),
+            "distances": unwrap(result["distances"]),
+            "metadatas": unwrap(result["metadatas"]),
+            "documents": unwrap(result["documents"]),
+        }
+
+    # ------------------------------------------------------------------ space
 
     def snapshot(self, projections: dict[str, dict[str, float]] | None = None) -> dict[str, Any]:
         with self._lock:
@@ -466,6 +795,7 @@ class MultimodalRagStore:
 
     def space_tool(self) -> dict[str, Any]:
         with self._lock:
+            self._require_collection()
             source_modalities: dict[str, int] = {}
             chunk_modalities: dict[str, int] = {}
             for source in self.sources:

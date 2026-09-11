@@ -25,3 +25,7 @@ env/
 # OS
 .DS_Store
 Thumbs.db
+
+# ChromaDB persistence
+chroma_db/
+backend/chroma_db/
