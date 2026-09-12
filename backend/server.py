@@ -12,7 +12,7 @@ from google.genai import types as genai_types
 from pydantic import BaseModel, Field, HttpUrl
 from starlette.concurrency import run_in_threadpool
 
-from app_state import RAG_STORE, RERANKER, ROUTER
+from app_state import RAG_STORE, RERANKER, ROUTER, VERIFIER
 from query_router import (
     COMPLEX,
     MULTI_HOP,
@@ -24,6 +24,7 @@ from query_router import (
     merge_candidates_keep_best,
 )
 from reranker import RERANK_CANDIDATE_K, RERANK_FINAL_K, rerank_and_select
+from verifier import run_verification
 
 SETUP_ERROR = ""
 
@@ -358,6 +359,15 @@ async def ask(req: AskRequest):
         req.question, retrieval_payload, insufficient_evidence=insufficient
     )
 
+    verification = await run_in_threadpool(
+        run_verification,
+        VERIFIER,
+        req.question,
+        answer,
+        payload_evidence,
+        [item["id"] for item in payload_evidence],
+    )
+
     projection_by_source = {
         point["source_id"]: point.get("projection", {"x": 0.0, "y": 0.0, "z": 0.0})
         for point in space["points"]
@@ -418,7 +428,22 @@ async def ask(req: AskRequest):
             },
         ]
     )
-    return {
+    trace.append(
+        {
+            "agent": "grounding_verifier",
+            "status": "unavailable" if verification["unavailable"] else "complete",
+            "detail": (
+                verification["reason"]
+                if verification["unavailable"]
+                else (
+                    f"Heuristic check: grounded={verification['grounded']} "
+                    f"score={verification['score']}; not a guarantee of correctness."
+                )
+            ),
+        }
+    )
+
+    response = {
         "answer": answer,
         "matches": matches,
         "reranked": outcome["used_reranking"],
@@ -431,6 +456,14 @@ async def ask(req: AskRequest):
         "trace": trace,
         "space": space,
     }
+    if verification["unavailable"]:
+        response["verification_unavailable"] = verification["reason"]
+    else:
+        response["grounded"] = verification["grounded"]
+        response["score"] = verification["score"]
+        response["claims"] = verification["claims"]
+        response["unsupported_claims"] = verification["unsupported_claims"]
+    return response
 
 
 if __name__ == "__main__":

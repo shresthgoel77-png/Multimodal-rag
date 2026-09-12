@@ -488,5 +488,4 @@ def test_ask_fallback_response_shape(server_module, monkeypatch):
     assert [m["id"] for m in data["matches"]] == ["src1::1", "src1::2"], "fallback ranked by similarity"
     assert all(m["relevance"] is None for m in data["matches"])
     assert all(m["reason"] is None for m in data["matches"])
-    assert data["trace"][-2]["agent"] == "reranker"
-    assert data["trace"][-2]["status"] == "fallback"
+    assert any(t["agent"] == "reranker" and t["status"] == "fallback" for t in data["trace"])
