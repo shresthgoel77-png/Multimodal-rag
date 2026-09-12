@@ -1,0 +1,230 @@
+{
+  "name": "multimodal-rag-benchmark",
+  "version": "1.0.0",
+  "corpus_ref": {
+    "name": "phase5-fixed-evaluation-corpus",
+    "corpus_path": "evaluation/corpus/corpus.json",
+    "manifest_path": "evaluation/corpus/manifest.json",
+    "source_count": 11
+  },
+  "category_labels": [
+    "factual",
+    "semantic",
+    "difficult",
+    "comparison",
+    "multi_hop",
+    "evidence_specific",
+    "unanswerable"
+  ],
+  "counts_by_category": {
+    "factual": 5,
+    "semantic": 5,
+    "difficult": 4,
+    "comparison": 3,
+    "multi_hop": 4,
+    "evidence_specific": 2,
+    "unanswerable": 2
+  },
+  "questions": [
+    {
+      "id": "q01",
+      "question": "What are the microscopic single-celled algae that live inside coral polyps and supply the coral with sugars from photosynthesis called?",
+      "expected_answer": "Zooxanthellae — the microscopic single-celled algae that live inside coral polyps, photosynthesize, and pass sugars to the coral.",
+      "expected_sources": ["fba30366ee8e1438"],
+      "category": "factual",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q02",
+      "question": "By how much does a healthy fringe of mangroves reduce the height of an incoming wave before the water reaches the shore, according to the ingested corpus?",
+      "expected_answer": "roughly two-thirds.",
+      "expected_sources": ["6bdc91f0a7a20e3c"],
+      "category": "factual",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q03",
+      "question": "What is the name of the root-like anchoring structure that attaches giant kelp to the seafloor?",
+      "expected_answer": "holdfast.",
+      "expected_sources": ["48a12d8e4a0af28f"],
+      "category": "factual",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q04",
+      "question": "Which IUCN protected-area categories cover the strictest no-take zones where all fishing and extraction are banned?",
+      "expected_answer": "categories I and II.",
+      "expected_sources": ["d8ea298641ca782c"],
+      "category": "factual",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q05",
+      "question": "What is the dominant salt-tolerant grass that fills temperate salt marshes?",
+      "expected_answer": "cordgrass.",
+      "expected_sources": ["d885609962c2e694"],
+      "category": "factual",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q06",
+      "question": "Which fully submerged blue carbon ecosystem spreads by cloning itself through creeping horizontal underground stems and cannot tolerate long exposure to open air?",
+      "expected_answer": "Seagrass meadows are communities of flowering plants that live fully submerged, spread by creeping horizontal stems called rhizomes, and cannot tolerate long exposure to open air.",
+      "expected_sources": ["bf6068140572a279"],
+      "category": "semantic",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q07",
+      "question": "In which ecosystem do colonies of tiny animals rely on microscopic plant-like partners for most of their energy while the animals' rocky skeleton grows only a few centimeters each year?",
+      "expected_answer": "Coral reefs: colonies of tiny animals called polyps, which give shelter and nutrients to the zooxanthellae inside them.",
+      "expected_sources": ["fba30366ee8e1438"],
+      "category": "semantic",
+      "difficulty": "hard"
+    },
+    {
+      "id": "q08",
+      "question": "In which kind of wetland does dead plant matter pile up for thousands of years as a carbon-rich layer because decay is slow in cold, waterlogged ground?",
+      "expected_answer": "Peatlands (bogs, fens, and swamps) — the freshwater wetlands in which dead plants build up as layers of peat.",
+      "expected_sources": ["f81c62370df96fe4"],
+      "category": "semantic",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q09",
+      "question": "Which coastal habitat is made of giant algae that have no true roots or leaves and grows best where the water is cold and full of nutrients?",
+      "expected_answer": "Kelp forests — large brown algae that hold to the seafloor with a root-like grip called a holdfast.",
+      "expected_sources": ["48a12d8e4a0af28f"],
+      "category": "semantic",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q10",
+      "question": "Which ocean-management tool lets fish rebuild inside a protected area and then drift out to raise catches in the neighboring fishing grounds?",
+      "expected_answer": "No-take zones inside marine protected areas, which produce a spillover effect: fish sheltered inside the reserve grow large, reproduce, and drift into neighboring fishing grounds, boosting the catch just outside the boundary.",
+      "expected_sources": ["d8ea298641ca782c"],
+      "category": "semantic",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q11",
+      "question": "At what rate does a seagrass hectare accumulate carbon in its soils each year, according to the field measurements in the ingested corpus?",
+      "expected_answer": "a rate near 138 grams of carbon per square meter each year.",
+      "expected_sources": ["bf6068140572a279"],
+      "category": "difficult",
+      "difficulty": "hard"
+    },
+    {
+      "id": "q12",
+      "question": "In mangrove trees, which species filters salt out at its roots and which species pushes excess salt out through glands on its leaves?",
+      "expected_answer": "Red mangroves filter most of the salt out at the roots, while black mangroves push excess salt out through special glands on their leaves.",
+      "expected_sources": ["6bdc91f0a7a20e3c"],
+      "category": "difficult",
+      "difficulty": "hard"
+    },
+    {
+      "id": "q13",
+      "question": "How does a healthy salt marsh keep from drowning as sea level rises?",
+      "expected_answer": "Marsh stems slow the moving water so that suspended sediment settles out and the marsh builds upward as sea level rises; that accretion keeps healthy marshes roughly level with a moderate rise in the sea.",
+      "expected_sources": ["d885609962c2e694"],
+      "category": "difficult",
+      "difficulty": "hard"
+    },
+    {
+      "id": "q14",
+      "question": "Through which predator-prey chain could a declining sea otter population turn a kelp forest into an urchin barren?",
+      "expected_answer": "When otters decline the urchin population explodes and grazes the kelp down to the bare holdfasts, a stripped ground called an urchin barren.",
+      "expected_sources": ["48a12d8e4a0af28f"],
+      "category": "difficult",
+      "difficulty": "hard"
+    },
+    {
+      "id": "q15",
+      "question": "Where do seagrass meadows and salt marshes each store most of their blue carbon, and how does that differ?",
+      "expected_answer": "Seagrass stores carbon in both the plant tissue and the sediment laid down beneath the meadow over centuries; salt marshes store carbon in their soils at high rates and very little in standing plant tissue, because the marsh grass dies back every winter.",
+      "expected_sources": ["bf6068140572a279", "d885609962c2e694"],
+      "category": "comparison",
+      "difficulty": "hard"
+    },
+    {
+      "id": "q16",
+      "question": "How do mangroves and peatlands differ in where they keep their stored carbon?",
+      "expected_answer": "Mangroves store carbon in both the living trees and the deep organic-rich mud beneath them; peatlands keep almost all of their carbon belowground, locked inside the peat itself.",
+      "expected_sources": ["6bdc91f0a7a20e3c", "f81c62370df96fe4"],
+      "category": "comparison",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q17",
+      "question": "Which grows faster, a coral reef or a kelp forest, and which of the two is more species-rich?",
+      "expected_answer": "Kelp forests grow quickly but hold lower species richness; coral reefs add only a few centimeters of skeleton per year and are among the most species-rich ecosystems in the ocean.",
+      "expected_sources": ["48a12d8e4a0af28f", "fba30366ee8e1438"],
+      "category": "comparison",
+      "difficulty": "hard"
+    },
+    {
+      "id": "q18",
+      "question": "Why does ocean acidification slow down the building of new coral skeleton?",
+      "expected_answer": "Carbon dioxide dissolves into seawater and forms carbonic acid, which releases hydrogen ions; those hydrogen ions combine with carbonate ions, making carbonate ions less available, and corals need those carbonate ions to build the calcium-carbonate skeleton that their polyps form, so with fewer carbonate ions corals add new skeleton more slowly.",
+      "expected_sources": ["f3237c668e501ec1", "fba30366ee8e1438"],
+      "category": "multi_hop",
+      "difficulty": "hard"
+    },
+    {
+      "id": "q19",
+      "question": "How does converting mangrove forests into shrimp ponds damage both the regional shrimp catch and the coast's protection from waves?",
+      "expected_answer": "Shrimp yield tracks the remaining mangrove area, because fish and shrimp pass part of their lives as juveniles inside mangrove creeks; mangroves shield the coast from storm surges and reduce the height of an incoming wave by roughly two-thirds.",
+      "expected_sources": ["ba8539a11ede6439", "6bdc91f0a7a20e3c"],
+      "category": "multi_hop",
+      "difficulty": "hard"
+    },
+    {
+      "id": "q20",
+      "question": "Why might a strictly protected no-take marine reserve still lose its corals?",
+      "expected_answer": "A park boundary alone does not guarantee a healthy reef, because climate-driven bleaching and acidified waters can harm protected reefs just as much as unprotected ones: warming seawater triggers coral bleaching, and under ocean acidification fewer carbonate ions are available so corals add new skeleton more slowly.",
+      "expected_sources": ["d8ea298641ca782c", "f3237c668e501ec1"],
+      "category": "multi_hop",
+      "difficulty": "hard"
+    },
+    {
+      "id": "q21",
+      "question": "Which physical structures do mangroves and kelp forests use to shelter other marine life, and which animals does each protect?",
+      "expected_answer": "Mangroves shelter juvenile fish and shrimp in their tangled prop-root mats; kelp forests shelter small invertebrates in their holdfasts and give cover to fish and seals beneath the surface canopy.",
+      "expected_sources": ["6bdc91f0a7a20e3c", "48a12d8e4a0af28f"],
+      "category": "multi_hop",
+      "difficulty": "hard"
+    },
+    {
+      "id": "q22",
+      "question": "According to the corpus, what happens to the stored carbon in a coastal wetland if the wetland is drained or dredged?",
+      "expected_answer": "Draining or dredging a wetland exposes the soil and can release the stored carbon back into the atmosphere.",
+      "expected_sources": ["6d6214e2ea752b7e"],
+      "category": "evidence_specific",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q23",
+      "question": "According to the corpus, why are the cold polar seas expected to become corrosive to carbonate shells first under future acidification scenarios?",
+      "expected_answer": "Because cold water holds more dissolved CO2 and is naturally lower in carbonate ions.",
+      "expected_sources": ["f3237c668e501ec1"],
+      "category": "evidence_specific",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q24",
+      "question": "Which species of penguin nests among the prop roots of mangrove trees?",
+      "expected_answer": "Not answerable from the fixed corpus: no ingested source mentions penguins.",
+      "expected_sources": [],
+      "category": "unanswerable",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q25",
+      "question": "What is the greatest depth at which the bioluminescent deep-sea anglerfish has ever been recorded?",
+      "expected_answer": "Not answerable from the fixed corpus: no ingested source mentions bioluminescence or anglerfish.",
+      "expected_sources": [],
+      "category": "unanswerable",
+      "difficulty": "medium"
+    }
+  ]
+}

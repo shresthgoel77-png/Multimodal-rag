@@ -1,0 +1,98 @@
+{
+  "dimensions": 768,
+  "embedding_provider": "deterministic-feature-hash",
+  "name": "phase5-fixed-evaluation-corpus",
+  "persist_directory": "/home/shresth/Desktop/Multimodal rag/backend/chroma_db",
+  "source_count": 11,
+  "sources": [
+    {
+      "chunks": 1,
+      "corpus_id": "coastal_fisheries",
+      "id": "ba8539a11ede6439",
+      "modality": "text",
+      "summary": "Coastal fisheries feed hundreds of millions of people, and their yields depend on the health of nearshore habitats. Many commercially important fish and shrimp pass part of their lives as juveniles inside mangrove creeks",
+      "title": "Coastal Fisheries"
+    },
+    {
+      "chunks": 2,
+      "corpus_id": "coral_reef_biology",
+      "id": "fba30366ee8e1438",
+      "modality": "text",
+      "summary": "Reef-building corals look like rocks or plants, but they are colonies of tiny animals called polyps. Each polyp secretes a cup of calcium carbonate around its base, and millions of cups fuse into a skeleton that grows on",
+      "title": "Coral Reef Biology"
+    },
+    {
+      "chunks": 1,
+      "corpus_id": "freshwater_peatlands",
+      "id": "f81c62370df96fe4",
+      "modality": "text",
+      "summary": "Freshwater wetlands include bogs, fens, and swamps, and they differ from coastal wetlands because they are fed mostly by rain and streams rather than by tides. In cold, waterlogged ground, plant matter decays very slowly",
+      "title": "Freshwater Peatlands"
+    },
+    {
+      "chunks": 2,
+      "corpus_id": "kelp_forests",
+      "id": "48a12d8e4a0af28f",
+      "modality": "text",
+      "summary": "Kelp forests are underwater stands of very large brown algae growing along rocky coastlines in cold, nutrient-rich water. Individual kelp plants can reach tens of meters tall, and their fronds rise to the surface to form",
+      "title": "Kelp Forests"
+    },
+    {
+      "chunks": 2,
+      "corpus_id": "mangrove_forests",
+      "id": "6bdc91f0a7a20e3c",
+      "modality": "text",
+      "summary": "Mangrove forests grow along tropical and subtropical coastlines where rivers meet the sea and water is brackish. Two well-known species are the red mangrove, Rhizophora mangle, and the black mangrove, Avicennia germinans",
+      "title": "Mangrove Forests"
+    },
+    {
+      "chunks": 2,
+      "corpus_id": "marine_protected_areas",
+      "id": "d8ea298641ca782c",
+      "modality": "text",
+      "summary": "A marine protected area, or MPA, is a stretch of ocean managed to conserve natural resources. The International Union for Conservation of Nature sorts protected areas into categories numbered I through VI. In the stricte",
+      "title": "Marine Protected Areas"
+    },
+    {
+      "chunks": 1,
+      "corpus_id": "ocean_acidification",
+      "id": "f3237c668e501ec1",
+      "modality": "text",
+      "summary": "Ocean acidification is the ongoing decrease in the pH of seawater caused by the ocean absorbing carbon dioxide from the atmosphere. When CO2 dissolves, it forms carbonic acid, which releases hydrogen ions and lowers the ",
+      "title": "Ocean Acidification"
+    },
+    {
+      "chunks": 2,
+      "corpus_id": "ocean_carbon_cycle",
+      "id": "6d6214e2ea752b7e",
+      "modality": "text",
+      "summary": "The ocean is the largest active carbon sink on the planet and absorbs roughly a quarter of the carbon dioxide that human activity releases each year. Carbon crosses into the surface layer through gas exchange, and a biol",
+      "title": "Ocean Carbon Cycle"
+    },
+    {
+      "chunks": 2,
+      "corpus_id": "salt_marshes",
+      "id": "d885609962c2e694",
+      "modality": "text",
+      "summary": "Salt marshes are grassy wetlands that flood and drain with the tide along temperate coastlines. The dominant plants are salt-tolerant grasses such as cordgrass, and the marsh is crossed by winding creeks that carry sedim",
+      "title": "Salt Marshes"
+    },
+    {
+      "chunks": 2,
+      "corpus_id": "seagrass_meadows",
+      "id": "bf6068140572a279",
+      "modality": "text",
+      "summary": "Seagrass meadows are communities of flowering plants that live fully submerged in shallow coastal water. Unlike seaweeds and algae, seagrasses have true roots, stems, and leaves, and they can even bloom and set fruit und",
+      "title": "Seagrass Meadows"
+    },
+    {
+      "chunks": 1,
+      "corpus_id": "tropical_rainforests",
+      "id": "fc0198a6255be596",
+      "modality": "text",
+      "summary": "Tropical rainforests are warm, wet forests near the equator that receive well over two meters of rain every year. The forest has clear layers: emergent trees rise above a continuous canopy, below which sit an understory ",
+      "title": "Tropical Rainforests"
+    }
+  ],
+  "version": "1.0.0"
+}

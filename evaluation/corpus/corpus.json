@@ -1,0 +1,74 @@
+{
+  "name": "phase5-fixed-evaluation-corpus",
+  "version": "1.0.0",
+  "description": "Fixed corpus for the Phase 5 evaluation benchmark. Content is coastal/ecosystem science covering mangroves, seagrass, coral reefs, kelp forests, ocean carbon and acidification, MPAs, fisheries, peatlands, rainforests, and salt marshes. All sources are ingested with deterministic embeddings (see eval_embeddings.py) into the persistent Chroma store at backend/chroma_db. Ground truth in the benchmark file is traceable only to the text below; the corpus must be reused unchanged in Phases 6 and 7.",
+  "modality_note": "All sources are ingested through MultimodalRagStore.add_text_source (the same path the /sources/text and /sources/url endpoints use) with modality='text'.",
+  "sources": [
+    {
+      "id": "mangrove_forests",
+      "title": "Mangrove Forests",
+      "modality": "text",
+      "text": "Mangrove forests grow along tropical and subtropical coastlines where rivers meet the sea and water is brackish. Two well-known species are the red mangrove, Rhizophora mangle, and the black mangrove, Avicennia germinans. Red mangroves are recognized by their arching prop roots that rise above the mud, while black mangrove trees send up thousands of narrow pencil-shaped pneumatophores that poke above the soil so the buried roots can breathe. Mangroves tolerate salt in two ways: red mangroves filter most of the salt out at the roots, and black mangroves push excess salt out through special glands on their leaves. A healthy fringe of mangrove can reduce the height of an incoming wave by roughly two-thirds before the water reaches the shore. The tangled root mats also shield the coast from storm surges and slow erosion by trapping sediment. Below the trees, the root maze works as a nursery where juvenile fish and shrimp find shelter from predators. Mangrove ecosystems are major stores of blue carbon: they lock carbon both in the living trees and in the deep, organic-rich mud beneath them, and they can hold around four times more carbon per hectare than a tropical rainforest. Even so, mangrove area has fallen sharply because of clearing for shrimp aquaculture ponds, coastal development, and timber harvest. Restoration often begins by reconnecting a site to the natural tide so that seedlings can recolonize."
+    },
+    {
+      "id": "seagrass_meadows",
+      "title": "Seagrass Meadows",
+      "modality": "text",
+      "text": "Seagrass meadows are communities of flowering plants that live fully submerged in shallow coastal water. Unlike seaweeds and algae, seagrasses have true roots, stems, and leaves, and they can even bloom and set fruit underwater. A meadow spreads by creeping horizontal stems called rhizomes that extend through the sand, and one genetic individual can grow into a huge bed made of thousands of connected shoots. Dugongs and green sea turtles are seagrass specialists that graze the blades, and the beds shelter juvenile fish much like mangroves do. The dense blades also slow the current so that suspended sediment settles out of the water, which clears the water column. Seagrass counts as blue carbon because carbon is stored not only in the plant tissue but also, more importantly, in the sediment laid down beneath the meadow over centuries. Field measurements show a seagrass hectare accumulating carbon in its soils at a rate near 138 grams of carbon per square meter each year. Boat propellers carve long scars into shallow beds, and high nutrient runoff from farms feeds algae that make the water murky, a stress called eutrophication. Unlike marsh grass, seagrass cannot tolerate long exposure to open air, so its beds are limited to permanently submerged ground."
+    },
+    {
+      "id": "ocean_carbon_cycle",
+      "title": "Ocean Carbon Cycle",
+      "modality": "text",
+      "text": "The ocean is the largest active carbon sink on the planet and absorbs roughly a quarter of the carbon dioxide that human activity releases each year. Carbon crosses into the surface layer through gas exchange, and a biological pump then carries some of it into the deep sea. Tiny phytoplankton fix carbon by photosynthesis; when they die or are eaten, their remains sink, and the deeper the particles travel the longer that carbon stays away from the atmosphere. Along the coasts, mangroves, seagrass meadows, and salt marshes are grouped under the label blue carbon because they bury carbon in waterlogged soils where decay is slow. Among these habitats, mangrove and salt-marsh soils generally accumulate carbon faster per hectare than seagrass soils do, but seagrass meadows cover a far larger total area of the seafloor, so their global contribution remains large. This soil carbon can stay buried for millennia as long as the wetland is left alone; draining or dredging a wetland exposes the soil and can release the stored carbon back into the atmosphere. Coastal ecosystems therefore matter twice over, storing carbon while also damping waves."
+    },
+    {
+      "id": "coral_reef_biology",
+      "title": "Coral Reef Biology",
+      "modality": "text",
+      "text": "Reef-building corals look like rocks or plants, but they are colonies of tiny animals called polyps. Each polyp secretes a cup of calcium carbonate around its base, and millions of cups fuse into a skeleton that grows only a few centimeters per year. Inside each polyp live microscopic single-celled algae known as zooxanthellae, which photosynthesize and pass sugars to the coral while the coral gives them shelter and nutrients. That partnership supplies most of the energy the coral needs to build skeleton. When seawater becomes unexpectedly warm, the stressed coral expels the zooxanthellae and turns pale or white, an event called coral bleaching; if temperature returns to normal quickly the coral can take up new symbionts and recover. Coral reefs are among the most species-rich ecosystems in the ocean, and healthy reefs provide the structural habitat that many reef fish depend on for shelter from predators. Ocean acidification also threatens reefs because the chemical change it causes in seawater slows how fast corals can lay down new skeleton. Under nutrient-rich conditions, fast-growing seaweed can overgrow and smother corals, which is why grazing fish that crop the algae matter."
+    },
+    {
+      "id": "ocean_acidification",
+      "title": "Ocean Acidification",
+      "modality": "text",
+      "text": "Ocean acidification is the ongoing decrease in the pH of seawater caused by the ocean absorbing carbon dioxide from the atmosphere. When CO2 dissolves, it forms carbonic acid, which releases hydrogen ions and lowers the pH. Many of those hydrogen ions combine with carbonate ions in the water, making carbonate ions less available to organisms that build shells and skeletons from calcium carbonate. Corals, shellfish such as oysters and clams, and free-floating snail-like animals called pteropods all depend on those carbonate ions to grow. Laboratory studies show that with fewer carbonate ions available, corals add new skeleton more slowly and juvenile oysters struggle to build their first shells. Under future acidification scenarios the cold polar seas are expected to become corrosive to carbonate shells first, because cold water holds more dissolved CO2 and is naturally lower in carbonate ions. Acidification and warming act together on reefs: warming triggers bleaching episodes that expel corals' food-making algae, while acidification slows skeletal growth, so a reef can erode faster than it grows."
+    },
+    {
+      "id": "kelp_forests",
+      "title": "Kelp Forests",
+      "modality": "text",
+      "text": "Kelp forests are underwater stands of very large brown algae growing along rocky coastlines in cold, nutrient-rich water. Individual kelp plants can reach tens of meters tall, and their fronds rise to the surface to form a dense canopy. Kelp is an alga rather than a plant because it has no true roots, stems, or leaves; it anchors to the seafloor with a root-like grip called a holdfast. The holdfast shelters small invertebrates, and the canopy gives cover to fish and seals. These forests also show a textbook trophic cascade: where sea otters are present they keep sea urchins in check and the kelp flourishes, but when otters decline the urchin population explodes and grazes the kelp down to the bare holdfasts, a stripped ground called an urchin barren. Kelp builds little soil carbon itself, yet some of the carbon in its tissue is exported offshore and can settle into deep-sea sediments, which is why macroalgae are increasingly counted in blue carbon budgets. Compared with coral reefs, kelp forests grow quickly but hold lower species richness, and they go through large seasonal cycles of growth and die-back."
+    },
+    {
+      "id": "marine_protected_areas",
+      "title": "Marine Protected Areas",
+      "modality": "text",
+      "text": "A marine protected area, or MPA, is a stretch of ocean managed to conserve natural resources. The International Union for Conservation of Nature sorts protected areas into categories numbered I through VI. In the strictest no-take zones, which fall under categories I and II, all fishing and extraction are banned so whole ecosystems can recover. Multi-use areas in categories IV, V, and VI allow some human activity, such as recreation or sustainable harvesting, while still protecting key habitats. The Great Barrier Reef Marine Park in Australia is a famous MPA that mixes strictly protected zones with zones open to traditional fishing. Well-run reserves produce a spillover effect: fish born and sheltered inside the reserve grow large, reproduce, and drift into neighboring fishing grounds, boosting the catch just outside the boundary. Because reserves protect whole food webs, they are also one of the few tools that help slow-growing species like groupers and sea turtles. Yet a park boundary alone does not guarantee a healthy reef, since climate-driven bleaching and acidified waters can harm protected reefs just as much as unprotected ones."
+    },
+    {
+      "id": "coastal_fisheries",
+      "title": "Coastal Fisheries",
+      "modality": "text",
+      "text": "Coastal fisheries feed hundreds of millions of people, and their yields depend on the health of nearshore habitats. Many commercially important fish and shrimp pass part of their lives as juveniles inside mangrove creeks and seagrass beds, where dense structure gives refuge and food, so the survival of those habitats directly shapes future catches. Fishery studies show that regional shrimp yield tracks the remaining mangrove area: as the mangrove acreage shrinks, the shrimp catch falls. The biggest driver of that loss is industrial shrimp aquaculture, which converts tidal forests into ponds that often produce for only a few years before disease or water-quality problems force them to be abandoned. When abandoned ponds are reconnected to the tide and replanted with seedlings, the restored mangroves can supply their nursery function for wild shrimp again. Beyond the catch, coastal tourism and storm protection are counted in the blue economy value of wetlands, and coastal communities rely on both as income and as safety."
+    },
+    {
+      "id": "freshwater_peatlands",
+      "title": "Freshwater Peatlands",
+      "modality": "text",
+      "text": "Freshwater wetlands include bogs, fens, and swamps, and they differ from coastal wetlands because they are fed mostly by rain and streams rather than by tides. In cold, waterlogged ground, plant matter decays very slowly, and the partly decayed plants build up as layers of peat. A peat bog that formed over thousands of years can hold far more carbon than the forest standing on top of it, which makes peatlands one of the largest terrestrial carbon reservoirs on Earth. Compared with mangroves, which store carbon in tall trees and carbonate-rich soils, peatlands keep almost all of their carbon belowground, locked inside the peat itself. When a peatland is drained for farming or dug up as fuel, the peat meets air, decomposes rapidly, and releases carbon dioxide for years. Typical bog plants such as cattails and sphagnum moss tolerate acidic, nutrient-poor water. Restoration is difficult because once dry, the peat surface compresses, catches fire easily, and erodes into streams."
+    },
+    {
+      "id": "tropical_rainforests",
+      "title": "Tropical Rainforests",
+      "modality": "text",
+      "text": "Tropical rainforests are warm, wet forests near the equator that receive well over two meters of rain every year. The forest has clear layers: emergent trees rise above a continuous canopy, below which sit an understory and a dim, still forest floor. Because light is scarce near the ground, most photosynthesis happens high in the canopy, where many plants called epiphytes, such as orchids and bromeliads, grow on the branches of trees. Rainforest soils are often poor, because the nutrients are locked up in the living vegetation: when a tree falls, decomposers recycle the nutrients quickly before they soak away. Species diversity is extremely high, and a single hectare can hold hundreds of tree species. Rainforests store a vast amount of aboveground carbon in their trunks, but unlike peatlands and coastal wetlands, the tropical soils beneath them hold relatively little carbon, because warm and moist conditions make dead material decompose quickly rather than accumulate."
+    },
+    {
+      "id": "salt_marshes",
+      "title": "Salt Marshes",
+      "modality": "text",
+      "text": "Salt marshes are grassy wetlands that flood and drain with the tide along temperate coastlines. The dominant plants are salt-tolerant grasses such as cordgrass, and the marsh is crossed by winding creeks that carry sediment in and out. Marsh stems slow the moving water so that suspended sediment settles out and the marsh builds upward as sea level rises; that accretion keeps healthy marshes roughly level with a moderate rise in the sea. Salt marshes store carbon in their soils at high rates, comparable per hectare to mangroves, but the marsh stores very little carbon in standing plant tissue because the grass dies back every winter. The zone where marsh meets estuary is a nursery for juvenile blue crabs and finfish sheltering among the stems. Salt marshes are threatened by being filled in for coastal development, and by erosion when the sea rises faster than the marsh can accrete. Their wave-buffering effect is weaker than the dense root system of a mangrove but still meaningful for storm protection in temperate regions."
+    }
+  ]
+}
