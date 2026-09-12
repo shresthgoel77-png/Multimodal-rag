@@ -172,6 +172,21 @@ def test_retrieval_payload_shape(store):
     assert len(payload["matches"]) == len(results["matches"])
 
 
+def test_retrieve_candidates_with_k_larger_than_corpus_is_graceful(store):
+    store._embed_text = lambda text, task_prefix: _deterministic_vector(text)
+    store.add_text_source("Tiny", SHORT_TEXT, "text")
+    assert store._collection.count() == 1
+
+    retrieval = store.retrieve_candidates(SHORT_TEXT, candidate_k=24)
+    assert retrieval["query"] == SHORT_TEXT
+    assert len(retrieval["candidates"]) == 1, "candidate_k larger than the corpus must not error"
+    assert retrieval["candidates"][0]["similarity"] >= 0.0
+    assert set(retrieval) == {"query", "query_point", "candidates", "space"}
+
+    retrieval = store.retrieve_candidates(SHORT_TEXT, candidate_k=48)
+    assert len(retrieval["candidates"]) == 1
+
+
 def test_default_persist_directory(tmp_path, monkeypatch):
     monkeypatch.delenv("CHROMA_PERSIST_DIRECTORY", raising=False)
     store = MultimodalRagStore()
