@@ -399,9 +399,30 @@ def server_module(tmp_path, monkeypatch):
     return server
 
 
+class _StandardRouter:
+    def classify(self, query):
+        return {
+            "strategy": "STANDARD",
+            "reason": "simple factual question",
+            "subqueries": [],
+            "fell_back": False,
+            "error": "",
+        }
+
+
+def _patch_router_and_adk(server_module, monkeypatch):
+    monkeypatch.setattr(server_module, "ROUTER", _StandardRouter())
+
+    async def _fake_adk(question, payload, insufficient_evidence=False):
+        return "canned answer"
+
+    monkeypatch.setattr(server_module, "_run_adk_agent", _fake_adk)
+
+
 def test_ask_reranked_response_shape(server_module, monkeypatch):
     from fastapi.testclient import TestClient
 
+    _patch_router_and_adk(server_module, monkeypatch)
     candidates = [
         _candidate("src1::1", 0.7, source_id="src1", text="alpha one"),
         _candidate("src1::2", 0.6, source_id="src1", text="alpha two"),
@@ -409,11 +430,6 @@ def test_ask_reranked_response_shape(server_module, monkeypatch):
     ]
     monkeypatch.setattr(server_module.RAG_STORE, "retrieve_candidates", lambda query, candidate_k: _canned_retrieval(candidates))
     monkeypatch.setattr(server_module.RAG_STORE, "embedding_provider", "gemini-embedding-2")
-
-    async def _fake_adk(question, payload):
-        return "canned answer"
-
-    monkeypatch.setattr(server_module, "_run_adk_agent", _fake_adk)
 
     class FakeReranker:
         available = True
@@ -433,6 +449,10 @@ def test_ask_reranked_response_shape(server_module, monkeypatch):
 
     assert data["reranked"] is True
     assert data["answer"] == "canned answer"
+    assert data["strategy"] == "STANDARD"
+    assert data["router_fell_back"] is False
+    assert data["subqueries"] == []
+    assert data["insufficient_evidence"] is False
     assert len(data["matches"]) == 2
     for match in data["matches"]:
         for key in ("id", "source_id", "title", "modality", "text", "score", "similarity", "relevance", "reason", "projection", "metadata"):
@@ -448,6 +468,7 @@ def test_ask_reranked_response_shape(server_module, monkeypatch):
 def test_ask_fallback_response_shape(server_module, monkeypatch):
     from fastapi.testclient import TestClient
 
+    _patch_router_and_adk(server_module, monkeypatch)
     candidates = [
         _candidate("src1::1", 0.7, source_id="src1", text="alpha one"),
         _candidate("src1::2", 0.6, source_id="src1", text="alpha two"),
@@ -455,11 +476,6 @@ def test_ask_fallback_response_shape(server_module, monkeypatch):
     ]
     monkeypatch.setattr(server_module.RAG_STORE, "retrieve_candidates", lambda query, candidate_k: _canned_retrieval(candidates))
     monkeypatch.setattr(server_module.RAG_STORE, "embedding_provider", "gemini-embedding-2")
-
-    async def _fake_adk(question, payload):
-        return "canned answer"
-
-    monkeypatch.setattr(server_module, "_run_adk_agent", _fake_adk)
     monkeypatch.setattr(server_module, "RERANKER", _UnavailableReranker())
 
     res = TestClient(server_module.app).post("/ask", json={"question": "q", "top_k": 2})

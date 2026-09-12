@@ -12,7 +12,17 @@ from google.genai import types as genai_types
 from pydantic import BaseModel, Field, HttpUrl
 from starlette.concurrency import run_in_threadpool
 
-from app_state import RAG_STORE, RERANKER
+from app_state import RAG_STORE, RERANKER, ROUTER
+from query_router import (
+    COMPLEX,
+    MULTI_HOP,
+    ROUTER_COMPLEX_CANDIDATE_K,
+    ROUTER_MULTIHOP_CANDIDATE_K,
+    ROUTER_RELEVANCE_THRESHOLD,
+    STANDARD,
+    evidence_is_sufficient,
+    merge_candidates_keep_best,
+)
 from reranker import RERANK_CANDIDATE_K, RERANK_FINAL_K, rerank_and_select
 
 SETUP_ERROR = ""
@@ -110,7 +120,11 @@ def _event_text(event: Any) -> str:
     return "".join(fragments)
 
 
-async def _run_adk_agent(question: str, retrieval: dict[str, Any]) -> str:
+async def _run_adk_agent(
+    question: str,
+    retrieval: dict[str, Any],
+    insufficient_evidence: bool = False,
+) -> str:
     if not ADK_AVAILABLE:
         raise HTTPException(503, SETUP_ERROR or "Google ADK is unavailable.")
 
@@ -121,9 +135,19 @@ async def _run_adk_agent(question: str, retrieval: dict[str, Any]) -> str:
     request_agent = build_agent(retrieve_relevant_context)
     request_runner = Runner(agent=request_agent, app_name=APP_NAME, session_service=session_service)
     session = await session_service.create_session(app_name=APP_NAME, user_id=USER_ID)
+    instruction = (
+        "Question: {question}\nUse the retrieval tool result for this exact question."
+        if not insufficient_evidence
+        else (
+            "Question: {question}\n"
+            "The retrieved evidence is insufficient to answer this question. "
+            "State clearly that the available evidence is insufficient to answer "
+            "the question, and do not invent an answer."
+        )
+    )
     content = genai_types.Content(
         role="user",
-        parts=[genai_types.Part(text=f"Question: {question}\nUse the retrieval tool result for this exact question.")],
+        parts=[genai_types.Part(text=instruction.format(question=question))],
     )
     final_text = ""
     async for event in request_runner.run_async(
@@ -242,29 +266,101 @@ def _evidence_payload(evidence: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+async def _retrieve_multihop(
+    subqueries: list[str],
+) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any]]:
+    """Run independent candidate retrieval per subquery and merge/dedup.
+
+    A subquery that errors or retrieves nothing contributes zero candidates
+    rather than failing the whole query. Returns (merged_candidates, space,
+    query_point). `space` and `query_point` come from the first subquery that
+    produced a usable retrieval (fallback empty placeholders if none did).
+    """
+    candidate_sets: list[list[dict[str, Any]]] = []
+    space: dict[str, Any] | None = None
+    query_point: dict[str, Any] | None = None
+    multihop_k = max(1, ROUTER_MULTIHOP_CANDIDATE_K)
+    for subquery in subqueries:
+        try:
+            retrieval = await run_in_threadpool(
+                RAG_STORE.retrieve_candidates, subquery, multihop_k
+            )
+        except Exception:
+            retrieval = None
+        if retrieval is None:
+            candidate_sets.append([])
+            continue
+        candidate_sets.append(retrieval.get("candidates") or [])
+        if space is None:
+            space = retrieval.get("space")
+            query_point = retrieval.get("query_point")
+    merged = merge_candidates_keep_best(candidate_sets)
+    if space is None:
+        space = await run_in_threadpool(RAG_STORE.snapshot)
+    if query_point is None:
+        query_point = {
+            "id": "query-router-fallback",
+            "source_id": "query",
+            "title": "",
+            "modality": "query",
+            "projection": {"x": 0.0, "y": 0.0, "z": 0.0},
+            "color": "#f54e00",
+            "score": 1,
+            "preview": "No subquery produced a usable embedding.",
+        }
+    return merged, space, query_point
+
+
 @app.post("/ask")
 async def ask(req: AskRequest):
     if not req.question.strip():
         raise HTTPException(400, "Question is required.")
 
-    candidate_k = max(1, RERANK_CANDIDATE_K)
+    route = await run_in_threadpool(ROUTER.classify, req.question)
+    strategy = route["strategy"]
+    router_reason = route["reason"] or ""
+    subqueries = list(route["subqueries"] or [])
+    router_fell_back = bool(route["fell_back"])
+
+    trace = [
+        {
+            "agent": "query_router",
+            "status": "fallback" if router_fell_back else "complete",
+            "detail": router_reason or f"Strategy {strategy} selected.",
+        }
+    ]
+
+    if strategy == MULTI_HOP:
+        candidate_k = max(1, ROUTER_MULTIHOP_CANDIDATE_K)
+        candidates, space, query_point = await _retrieve_multihop(subqueries)
+    else:
+        candidate_k = max(
+            1, ROUTER_COMPLEX_CANDIDATE_K if strategy == COMPLEX else RERANK_CANDIDATE_K
+        )
+        try:
+            retrieval = await run_in_threadpool(
+                RAG_STORE.retrieve_candidates, req.question, candidate_k
+            )
+        except Exception as exc:
+            raise HTTPException(503, f"Retrieval failed: {exc}") from exc
+        candidates = retrieval["candidates"]
+        space = retrieval["space"]
+        query_point = retrieval["query_point"]
+
     final_k = max(1, min(req.top_k, candidate_k))
-
-    try:
-        retrieval = await run_in_threadpool(RAG_STORE.retrieve_candidates, req.question, candidate_k)
-    except Exception as exc:
-        raise HTTPException(503, f"Retrieval failed: {exc}") from exc
-
-    candidates = retrieval["candidates"]
     outcome = await run_in_threadpool(rerank_and_select, RERANKER, req.question, candidates, final_k)
     evidence = outcome["evidence"]
 
-    retrieval_payload = _evidence_payload(evidence)
-    answer = await _run_adk_agent(req.question, retrieval_payload)
+    insufficient = not evidence_is_sufficient(evidence, ROUTER_RELEVANCE_THRESHOLD)
+    payload_evidence = [] if insufficient else evidence
+    retrieval_payload = _evidence_payload(payload_evidence)
+    answer = await _run_adk_agent(
+        req.question, retrieval_payload, insufficient_evidence=insufficient
+    )
 
     projection_by_source = {
         point["source_id"]: point.get("projection", {"x": 0.0, "y": 0.0, "z": 0.0})
-        for point in retrieval["space"]["points"]
+        for point in space["points"]
     }
     matches = [
         {
@@ -284,38 +380,56 @@ async def ask(req: AskRequest):
         }
         for item in evidence
     ]
-    trace = [
-        {
-            "agent": "space_inspector",
-            "status": "complete",
-            "detail": f"{len(RAG_STORE.sources)} sources, {len(RAG_STORE.chunks)} chunks, {RAG_STORE.dimensions} dimensions",
-        },
-        {
-            "agent": "retrieval_tool",
-            "status": "complete",
-            "detail": f"Embedded query and retrieved {len(candidates)} candidate chunks",
-        },
-        {
-            "agent": "reranker",
-            "status": "complete" if outcome["used_reranking"] else "fallback",
-            "detail": (
-                (outcome["reason"] or "Gemini reranking selected final evidence.")
-                + (f" Validation notes: {len(outcome['errors'])}." if outcome["errors"] else "")
-            ),
-        },
-        {
-            "agent": "answer_synthesizer",
-            "status": "complete",
-            "detail": "Generated grounded answer; citations are shown separately",
-        },
-    ]
+    if strategy == MULTI_HOP:
+        retrieval_detail = (
+            f"Embedded {len(subqueries)} subqueries and retrieved "
+            f"{len(candidates)} unique candidates after merge/dedup"
+        )
+    else:
+        retrieval_detail = f"Embedded query and retrieved {len(candidates)} candidate chunks"
+    trace.extend(
+        [
+            {
+                "agent": "space_inspector",
+                "status": "complete",
+                "detail": f"{len(RAG_STORE.sources)} sources, {len(RAG_STORE.chunks)} chunks, {RAG_STORE.dimensions} dimensions",
+            },
+            {
+                "agent": "retrieval_tool",
+                "status": "complete",
+                "detail": retrieval_detail,
+            },
+            {
+                "agent": "reranker",
+                "status": "complete" if outcome["used_reranking"] else "fallback",
+                "detail": (
+                    (outcome["reason"] or "Gemini reranking selected final evidence.")
+                    + (f" Validation notes: {len(outcome['errors'])}." if outcome["errors"] else "")
+                ),
+            },
+            {
+                "agent": "answer_synthesizer",
+                "status": "complete",
+                "detail": (
+                    "Stated that evidence is insufficient to answer the question."
+                    if insufficient
+                    else "Generated grounded answer; citations are shown separately"
+                ),
+            },
+        ]
+    )
     return {
         "answer": answer,
         "matches": matches,
         "reranked": outcome["used_reranking"],
-        "query_point": retrieval["query_point"],
+        "strategy": strategy,
+        "router_reason": router_reason,
+        "subqueries": subqueries,
+        "router_fell_back": router_fell_back,
+        "insufficient_evidence": insufficient,
+        "query_point": query_point,
         "trace": trace,
-        "space": retrieval["space"],
+        "space": space,
     }
 
 
