@@ -12,7 +12,8 @@ from google.genai import types as genai_types
 from pydantic import BaseModel, Field, HttpUrl
 from starlette.concurrency import run_in_threadpool
 
-from app_state import RAG_STORE
+from app_state import RAG_STORE, RERANKER
+from reranker import RERANK_CANDIDATE_K, RERANK_FINAL_K, rerank_and_select
 
 SETUP_ERROR = ""
 
@@ -66,7 +67,7 @@ class UrlSourceRequest(BaseModel):
 
 class AskRequest(BaseModel):
     question: str
-    top_k: int = Field(6, ge=1, le=12)
+    top_k: int = Field(max(1, min(RERANK_FINAL_K, RERANK_CANDIDATE_K)), ge=1, le=12)
 
 
 def _extract_text_from_html(html: str) -> str:
@@ -219,17 +220,70 @@ async def delete_source(source_id: str):
     return {"deleted": source_id, "space": await run_in_threadpool(RAG_STORE.snapshot)}
 
 
+def _evidence_payload(evidence: list[dict[str, Any]]) -> dict[str, Any]:
+    """Shape the reranked evidence for the ADK generator.
+
+    Mirrors MultimodalRagStore.retrieval_payload exactly (citation, source,
+    modality, similarity, evidence) so generation's input conventions are
+    unchanged; only the evidence items and their order change.
+    """
+    return {
+        "provider": RAG_STORE.embedding_provider,
+        "matches": [
+            {
+                "citation": item["id"],
+                "source": item["title"],
+                "modality": item["modality"],
+                "similarity": item["similarity"],
+                "evidence": item["text"],
+            }
+            for item in evidence
+        ],
+    }
+
+
 @app.post("/ask")
 async def ask(req: AskRequest):
     if not req.question.strip():
         raise HTTPException(400, "Question is required.")
 
+    candidate_k = max(1, RERANK_CANDIDATE_K)
+    final_k = max(1, min(req.top_k, candidate_k))
+
     try:
-        retrieval = await run_in_threadpool(RAG_STORE.search, req.question, req.top_k)
-        retrieval_payload = RAG_STORE.retrieval_payload(retrieval)
+        retrieval = await run_in_threadpool(RAG_STORE.retrieve_candidates, req.question, candidate_k)
     except Exception as exc:
         raise HTTPException(503, f"Retrieval failed: {exc}") from exc
+
+    candidates = retrieval["candidates"]
+    outcome = await run_in_threadpool(rerank_and_select, RERANKER, req.question, candidates, final_k)
+    evidence = outcome["evidence"]
+
+    retrieval_payload = _evidence_payload(evidence)
     answer = await _run_adk_agent(req.question, retrieval_payload)
+
+    projection_by_source = {
+        point["source_id"]: point.get("projection", {"x": 0.0, "y": 0.0, "z": 0.0})
+        for point in retrieval["space"]["points"]
+    }
+    matches = [
+        {
+            "id": item["id"],
+            "source_id": item["source_id"],
+            "title": item["title"],
+            "modality": item["modality"],
+            "text": item["text"],
+            "score": item["similarity"],
+            "similarity": item["similarity"],
+            "relevance": item["relevance"],
+            "reason": item["reason"],
+            "projection": projection_by_source.get(
+                item["source_id"], {"x": 0.0, "y": 0.0, "z": 0.0}
+            ),
+            "metadata": item["metadata"],
+        }
+        for item in evidence
+    ]
     trace = [
         {
             "agent": "space_inspector",
@@ -239,7 +293,15 @@ async def ask(req: AskRequest):
         {
             "agent": "retrieval_tool",
             "status": "complete",
-            "detail": f"Embedded query and retrieved {len(retrieval['matches'])} nearest sources",
+            "detail": f"Embedded query and retrieved {len(candidates)} candidate chunks",
+        },
+        {
+            "agent": "reranker",
+            "status": "complete" if outcome["used_reranking"] else "fallback",
+            "detail": (
+                (outcome["reason"] or "Gemini reranking selected final evidence.")
+                + (f" Validation notes: {len(outcome['errors'])}." if outcome["errors"] else "")
+            ),
         },
         {
             "agent": "answer_synthesizer",
@@ -249,7 +311,8 @@ async def ask(req: AskRequest):
     ]
     return {
         "answer": answer,
-        "matches": retrieval["matches"],
+        "matches": matches,
+        "reranked": outcome["used_reranking"],
         "query_point": retrieval["query_point"],
         "trace": trace,
         "space": retrieval["space"],

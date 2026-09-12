@@ -719,6 +719,69 @@ class MultimodalRagStore:
                 "space": self.snapshot(projections=projections),
             }
 
+    def retrieve_candidates(self, query: str, candidate_k: int = 12) -> dict[str, Any]:
+        """Retrieve up to `candidate_k` raw chunk candidates for reranking.
+
+        Unlike `search`, which deduplicates matches down to one best source,
+        this returns the chunk-level candidates themselves (id + text +
+        similarity) so the reranking stage can score them individually. It
+        shares the same query embedding / PCA projection with `search` so the
+        response can keep producing `query_point` and `space` unchanged.
+        """
+        with self._lock:
+            collection = self._require_collection()
+            query_vector = self._embed_text(query, "task: question answering | query")
+            self._validate_vector(query_vector)
+            query_id = f"query-{uuid.uuid4().hex[:8]}"
+
+            source_vectors = self._source_vectors()
+            projections = self._pca_projection({**source_vectors, query_id: query_vector})
+            query_point = {
+                "id": query_id,
+                "source_id": "query",
+                "title": query,
+                "modality": "query",
+                "projection": projections.get(query_id, {"x": 0.0, "y": 0.0, "z": 0.0}),
+                "color": MODALITY_COLORS["query"],
+                "score": 1,
+                "preview": "Query embedding projected with the active source set.",
+            }
+
+            count = self._collection_count(collection)
+            if count == 0:
+                self._emit("query_embedded", {"query": query, "matches": []})
+                return {
+                    "query": query,
+                    "query_point": query_point,
+                    "candidates": [],
+                    "space": self.snapshot(projections=projections),
+                }
+
+            nearest = self._query_collection(collection, query_vector, min(candidate_k, count))
+            candidates: list[dict[str, Any]] = []
+            for chunk_id, text, metadata, distance in zip(
+                nearest["ids"], nearest["documents"], nearest["metadatas"], nearest["distances"]
+            ):
+                meta = metadata or {}
+                candidates.append(
+                    {
+                        "id": chunk_id,
+                        "source_id": str(meta.get("source_id", "")),
+                        "title": str(meta.get("title", "")),
+                        "modality": str(meta.get("modality", "text")),
+                        "text": text,
+                        "similarity": round(1.0 - float(distance), 4),
+                        "metadata": dict(meta),
+                    }
+                )
+            self._emit("query_embedded", {"query": query, "matches": [c["id"] for c in candidates]})
+            return {
+                "query": query,
+                "query_point": query_point,
+                "candidates": candidates,
+                "space": self.snapshot(projections=projections),
+            }
+
     def _collection_count(self, collection: Any) -> int:
         try:
             return collection.count()
