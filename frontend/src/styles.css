@@ -908,6 +908,82 @@ textarea:focus {
   animation: spin 0.9s linear infinite;
 }
 
+/* Phase 8: pipeline trace + evaluation panels (reuse existing panel language). */
+.latency-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.latency-cell {
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: var(--surface-card);
+  padding: 8px 10px;
+  display: grid;
+  gap: 2px;
+}
+
+.latency-cell.total {
+  border-color: rgba(245, 78, 0, 0.48);
+}
+
+.latency-cell strong {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.latency-cell span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.58px;
+  text-transform: uppercase;
+}
+
+.subquery-list {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.subquery-list p {
+  border-left: 2px solid var(--primary);
+  padding-left: 8px;
+}
+
+.eval-table {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.eval-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: var(--surface-card);
+  padding: 7px 10px;
+}
+
+.eval-row span {
+  color: var(--body);
+  font-size: 12px;
+}
+
+.eval-row strong {
+  color: var(--ink);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: right;
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);

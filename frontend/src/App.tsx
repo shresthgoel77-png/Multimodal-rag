@@ -63,15 +63,95 @@ type Match = {
   modality: Modality;
   text: string;
   score: number;
+  similarity?: number;
+  relevance?: number | null;
+  reason?: string | null;
   projection: { x: number; y: number; z: number };
+};
+
+type Latencies = {
+  routing_latency?: number;
+  retrieval_latency?: number;
+  reranking_latency?: number;
+  generation_latency?: number;
+  verification_latency?: number;
+  total_latency?: number;
+};
+
+type CandidateScore = {
+  id: string;
+  source_id: string;
+  title: string;
+  similarity: number;
+};
+
+type VerificationState = {
+  unavailable: boolean;
+  reason?: string;
+  grounded?: boolean | null;
+  score?: number | null;
+  claims?: Array<{ claim: string; supported: boolean; evidence_ids: string[] }>;
+  unsupported_claims?: string[];
 };
 
 type AskResponse = {
   answer: string;
+  query?: string;
   matches: Match[];
+  candidates?: CandidateScore[];
+  candidate_count?: number;
+  reranked?: boolean;
+  rerank_fallback?: boolean;
+  rerank_reason?: string;
+  strategy?: string;
+  router_reason?: string;
+  subqueries?: string[];
+  router_fell_back?: boolean;
+  insufficient_evidence?: boolean;
   query_point: RackPoint;
   trace: Array<{ agent: string; status: string; detail: string }>;
   space: SpaceSnapshot;
+  latencies?: Latencies;
+  retrieval_latency?: number;
+  reranking_latency?: number;
+  generation_latency?: number;
+  verification_latency?: number;
+  total_latency?: number;
+  grounded?: boolean;
+  score?: number;
+  claims?: VerificationState["claims"];
+  unsupported_claims?: string[];
+  verification_unavailable?: string;
+};
+
+type EvalSummary = {
+  benchmark: {
+    name?: string;
+    version?: string;
+    question_count?: number;
+    counts_by_category?: Record<string, number>;
+  } | null;
+  latest_run: {
+    file?: string;
+    timestamp?: string;
+    question_count?: number;
+    api_available?: boolean;
+    embedding?: Record<string, unknown>;
+    retrieval?: Record<string, number> | null;
+    judge?: Record<string, number | null> | null;
+    unanswerable?: Record<string, number> | null;
+    corpus_drift?: { count?: number; questions?: string[] } | null;
+  } | null;
+  latest_comparison: {
+    file?: string;
+    timestamp?: string;
+    question_count?: number;
+    baseline?: Record<string, Record<string, number>> | null;
+    improved?: Record<string, Record<string, number>> | null;
+    differences_improved_minus_baseline?: Record<string, number | null> | null;
+    corpus_mismatch?: boolean | null;
+  } | null;
+  notes: string[];
 };
 
 const modalityIcon: Record<Modality, React.ElementType> = {
@@ -427,6 +507,286 @@ function SourceRow({
   );
 }
 
+function formatLatency(value: number | undefined | null) {
+  if (typeof value !== "number" || !Number.isFinite(value)) return "—";
+  return value >= 1000 ? `${(value / 1000).toFixed(2)} s` : `${Math.round(value)} ms`;
+}
+
+function formatScore(value: number | null | undefined) {
+  if (typeof value !== "number" || !Number.isFinite(value)) return "—";
+  return value.toFixed(2);
+}
+
+function PipelinePanel({
+  strategy,
+  routerReason,
+  routerFellBack,
+  subqueries,
+  candidateCount,
+  latencies,
+  reranked,
+  rerankFallback,
+  rerankReason,
+  verification,
+  insufficient,
+  hasAsked,
+}: {
+  strategy: string | null;
+  routerReason: string;
+  routerFellBack: boolean;
+  subqueries: string[];
+  candidateCount: number | null;
+  latencies: Latencies | null;
+  reranked: boolean | null;
+  rerankFallback: boolean | null;
+  rerankReason: string;
+  verification: VerificationState | null;
+  insufficient: boolean | null;
+  hasAsked: boolean;
+}) {
+  if (!hasAsked) {
+    return (
+      <section className="panel trace-panel">
+        <div className="panel-heading">
+          <div>
+            <h2>Pipeline</h2>
+            <p>Strategy, scores, latencies, verification</p>
+          </div>
+          <Activity size={18} />
+        </div>
+        <div className="empty-state">Ask a question to see how the pipeline behaved.</div>
+      </section>
+    );
+  }
+  const stages: Array<[string, number | undefined]> = [
+    ["Routing", latencies?.routing_latency],
+    ["Retrieval", latencies?.retrieval_latency],
+    ["Reranking", latencies?.reranking_latency],
+    ["Generation", latencies?.generation_latency],
+    ["Verification", latencies?.verification_latency],
+  ];
+  return (
+    <section className="panel trace-panel">
+      <div className="panel-heading">
+        <div>
+          <h2>Pipeline</h2>
+          <p>How the RAG pipeline behaved for this query</p>
+        </div>
+        <Activity size={18} />
+      </div>
+      <div className="trace-list">
+        <div className="trace-row">
+          <span>{strategy ?? "unknown strategy"}</span>
+          <p>
+            {routerReason || "No router reason returned."}
+            {routerFellBack ? " (router fallback used — STANDARD)" : ""}
+            {typeof candidateCount === "number" ? ` · ${candidateCount} candidates` : ""}
+          </p>
+          {strategy === "MULTI_HOP" && (
+            <div className="subquery-list">
+              {subqueries.length === 0 && <p>No subqueries returned.</p>}
+              {subqueries.map((sub) => (
+                <p key={sub}>↳ {sub}</p>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="trace-row">
+          <span>{rerankFallback ? "rerank fallback" : reranked ? "reranked" : "similarity"}</span>
+          <p>
+            {rerankFallback
+              ? `Reranking fallback used — ordered by similarity. ${rerankReason || ""}`.trim()
+              : reranked
+                ? "Gemini reranking selected the final evidence."
+                : "Reranking state unknown for this answer."}
+          </p>
+        </div>
+        <div className="trace-row">
+          <span>latencies</span>
+          <div className="latency-grid">
+            {stages.map(([label, value]) => (
+              <div className="latency-cell" key={label}>
+                <strong>{formatLatency(value ?? null)}</strong>
+                <span>{label}</span>
+              </div>
+            ))}
+            <div className="latency-cell total">
+              <strong>{formatLatency(latencies?.total_latency ?? null)}</strong>
+              <span>Total</span>
+            </div>
+          </div>
+        </div>
+        <div className="trace-row">
+          <span>
+            {verification == null || verification.unavailable
+              ? "verification unavailable"
+              : verification.grounded
+                ? "grounded"
+                : "not grounded"}
+          </span>
+          {verification == null || verification.unavailable ? (
+            <p>{verification?.reason || "Verification did not run for this answer."}</p>
+          ) : (
+            <>
+              <p>
+                Score {formatScore(verification.score)} ·{" "}
+                {(verification.claims ?? []).filter((c) => c.supported).length}/
+                {(verification.claims ?? []).length} claims supported
+                {insufficient ? " · evidence was below the sufficiency threshold" : ""}
+              </p>
+              {(verification.unsupported_claims ?? []).length > 0 && (
+                <div className="subquery-list">
+                  {(verification.unsupported_claims ?? []).map((claim) => (
+                    <p key={claim}>✕ {claim}</p>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function MetricRow({ label, value }: { label: string; value: number | null | undefined }) {
+  return (
+    <div className="eval-row">
+      <span>{label}</span>
+      <strong>{typeof value === "number" && Number.isFinite(value) ? value.toFixed(4) : "—"}</strong>
+    </div>
+  );
+}
+
+function EvaluationPanel() {
+  const [summary, setSummary] = useState<EvalSummary | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [loaded, setLoaded] = useState(false);
+
+  async function load() {
+    setLoading(true);
+    setError("");
+    try {
+      const controller = new AbortController();
+      const timer = window.setTimeout(() => controller.abort(), 15000);
+      const res = await fetch(`${API}/evaluation/summary`, { signal: controller.signal });
+      window.clearTimeout(timer);
+      if (!res.ok) throw new Error(`Evaluation endpoint returned ${res.status}.`);
+      const data: EvalSummary = await res.json();
+      setSummary(data);
+      setLoaded(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load evaluation results.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const run = summary?.latest_run ?? null;
+  const comp = summary?.latest_comparison ?? null;
+  const hasAnyData = Boolean(summary?.benchmark || run || comp);
+
+  return (
+    <section className="panel citations-panel">
+      <div className="panel-heading">
+        <div>
+          <h2>Evaluation</h2>
+          <p>Phase 6 metrics · Phase 7 baseline vs. improved</p>
+        </div>
+        <BrainCircuit size={18} />
+      </div>
+      {!loaded && !loading && !error && (
+        <>
+          <div className="empty-state">Stored results from the last evaluation run. Not recomputed live.</div>
+          <button className="primary-button" onClick={load}>Load evaluation results</button>
+        </>
+      )}
+      {loading && <div className="inline-status" role="status">Loading stored evaluation results…</div>}
+      {error && (
+        <>
+          <div className="inline-status error" role="alert">{error}</div>
+          <button className="primary-button" onClick={load}>Retry</button>
+        </>
+      )}
+      {loaded && !error && summary && !hasAnyData && (
+        <div className="empty-state">
+          No evaluation results yet — run the Phase 6/7 harness first.
+          {(summary.notes ?? []).map((note) => (
+            <p key={note}>{note}</p>
+          ))}
+        </div>
+      )}
+      {loaded && !error && summary && hasAnyData && (
+        <div className="trace-list">
+          {summary.benchmark && (
+            <div className="trace-row">
+              <span>benchmark</span>
+              <p>
+                {summary.benchmark.name ?? "benchmark"} v{summary.benchmark.version ?? "?"} ·{" "}
+                {summary.benchmark.question_count ?? "?"} questions
+              </p>
+            </div>
+          )}
+          {run ? (
+            <div className="trace-row">
+              <span>improved · latest run</span>
+              <p>
+                {run.file ?? "run"} · {run.question_count ?? "?"} questions
+                {typeof run.api_available === "boolean" ? (run.api_available ? " · live API" : " · offline") : ""}
+              </p>
+              <div className="eval-table">
+                <MetricRow label="Recall@5" value={run.retrieval?.recall_at_5} />
+                <MetricRow label="Recall@10" value={run.retrieval?.recall_at_10} />
+                <MetricRow label="MRR" value={run.retrieval?.mrr} />
+                <MetricRow label="Judge correctness" value={run.judge?.correctness_mean} />
+                <MetricRow label="Judge groundedness" value={run.judge?.groundedness_mean} />
+              </div>
+              {(run.judge?.available === 0 || run.unanswerable) && (
+                <p>
+                  Judge scored {run.judge?.available ?? 0}/{run.judge?.total ?? "?"} · unanswerable handled{" "}
+                  {run.unanswerable?.correctly_handled ?? "?"}/{run.unanswerable?.count ?? "?"}
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="empty-state">No evaluation results yet — no Phase 6 run file found.</div>
+          )}
+          {comp ? (
+            <div className="trace-row">
+              <span>baseline vs. improved</span>
+              <p>{comp.file ?? "comparison"} · {comp.question_count ?? "?"} questions per pipeline</p>
+              <div className="eval-table">
+                {(["recall_at_5", "recall_at_10", "mrr"] as const).map((key) => {
+                  const b = comp.baseline?.retrieval?.[key];
+                  const i = comp.improved?.retrieval?.[key];
+                  const d = comp.differences_improved_minus_baseline?.[key];
+                  return (
+                    <div className="eval-row" key={key}>
+                      <span>{key.replaceAll("_", "@")}</span>
+                      <strong>
+                        {formatScore(b)} → {formatScore(i)}
+                        {typeof d === "number" ? ` (${d >= 0 ? "+" : ""}${d.toFixed(4)})` : ""}
+                      </strong>
+                    </div>
+                  );
+                })}
+              </div>
+              <p>
+                Unanswerable handled: baseline {comp.baseline?.unanswerable?.correctly_handled ?? "?"} vs. improved{" "}
+                {comp.improved?.unanswerable?.correctly_handled ?? "?"}
+                {comp.corpus_mismatch ? " · corpus changed mid-run" : ""}
+              </p>
+            </div>
+          ) : (
+            <div className="empty-state">No comparison yet — no Phase 7 comparison file found.</div>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
 export default function App() {
   const [space, setSpace] = useState<SpaceSnapshot | null>(null);
   const [tab, setTab] = useState<"text" | "url" | "file">("text");
@@ -438,6 +798,18 @@ export default function App() {
   const [answer, setAnswer] = useState("");
   const [matches, setMatches] = useState<Match[]>([]);
   const [trace, setTrace] = useState<AskResponse["trace"]>([]);
+  const [strategy, setStrategy] = useState<string | null>(null);
+  const [routerReason, setRouterReason] = useState("");
+  const [routerFellBack, setRouterFellBack] = useState(false);
+  const [subqueries, setSubqueries] = useState<string[]>([]);
+  const [candidateCount, setCandidateCount] = useState<number | null>(null);
+  const [latencies, setLatencies] = useState<Latencies | null>(null);
+  const [reranked, setReranked] = useState<boolean | null>(null);
+  const [rerankFallback, setRerankFallback] = useState<boolean | null>(null);
+  const [rerankReason, setRerankReason] = useState("");
+  const [verification, setVerification] = useState<VerificationState | null>(null);
+  const [insufficient, setInsufficient] = useState<boolean | null>(null);
+  const [hasAsked, setHasAsked] = useState(false);
   const [queryPoint, setQueryPoint] = useState<RackPoint | null>(null);
   const [selectedPoint, setSelectedPoint] = useState<RackPoint | null>(null);
   const [isAddingSource, setIsAddingSource] = useState(false);
@@ -544,8 +916,44 @@ export default function App() {
       const data: AskResponse = await res.json();
       if (!res.ok) throw new Error((data as unknown as { detail?: string }).detail || "Question failed.");
       setAnswer(data.answer);
-      setMatches(data.matches);
-      setTrace(data.trace);
+      setMatches(data.matches ?? []);
+      setTrace(data.trace ?? []);
+      setStrategy(typeof data.strategy === "string" ? data.strategy : null);
+      setRouterReason(data.router_reason ?? "");
+      setRouterFellBack(Boolean(data.router_fell_back));
+      setSubqueries(Array.isArray(data.subqueries) ? data.subqueries : []);
+      setCandidateCount(
+        typeof data.candidate_count === "number"
+          ? data.candidate_count
+          : Array.isArray(data.candidates)
+            ? data.candidates.length
+            : null,
+      );
+      setLatencies(data.latencies ?? {
+        retrieval_latency: data.retrieval_latency,
+        reranking_latency: data.reranking_latency,
+        generation_latency: data.generation_latency,
+        verification_latency: data.verification_latency,
+        total_latency: data.total_latency,
+      });
+      setReranked(typeof data.reranked === "boolean" ? data.reranked : null);
+      setRerankFallback(typeof data.rerank_fallback === "boolean" ? data.rerank_fallback : null);
+      setRerankReason(data.rerank_reason ?? "");
+      setInsufficient(typeof data.insufficient_evidence === "boolean" ? data.insufficient_evidence : null);
+      if (typeof data.verification_unavailable === "string") {
+        setVerification({ unavailable: true, reason: data.verification_unavailable });
+      } else if (typeof data.grounded === "boolean" || typeof data.score === "number") {
+        setVerification({
+          unavailable: false,
+          grounded: data.grounded ?? null,
+          score: data.score ?? null,
+          claims: Array.isArray(data.claims) ? data.claims : [],
+          unsupported_claims: Array.isArray(data.unsupported_claims) ? data.unsupported_claims : [],
+        });
+      } else {
+        setVerification({ unavailable: true, reason: "Verification did not run for this answer." });
+      }
+      setHasAsked(true);
       setQueryPoint(data.query_point);
       setSpace(data.space);
       setQaStatus(`Retrieved ${data.matches.length} citation${data.matches.length === 1 ? "" : "s"}.`);
@@ -746,6 +1154,21 @@ export default function App() {
             </div>
           </section>
 
+          <PipelinePanel
+            strategy={strategy}
+            routerReason={routerReason}
+            routerFellBack={routerFellBack}
+            subqueries={subqueries}
+            candidateCount={candidateCount}
+            latencies={latencies}
+            reranked={reranked}
+            rerankFallback={rerankFallback}
+            rerankReason={rerankReason}
+            verification={verification}
+            insufficient={insufficient}
+            hasAsked={hasAsked}
+          />
+
           <section className="panel citations-panel">
             <div className="panel-heading">
               <div>
@@ -770,11 +1193,20 @@ export default function App() {
                     </div>
                     <div className="score-track" aria-hidden="true"><div style={{ width: scorePct(match.score) }} /></div>
                     <p>{match.text}</p>
+                    {(typeof match.similarity === "number" || typeof match.relevance === "number") && (
+                      <div className="source-meta">
+                        sim {formatScore(match.similarity ?? match.score)} · rerank{" "}
+                        {typeof match.relevance === "number" ? formatScore(match.relevance) : "fallback"}
+                        {match.reason ? ` · ${match.reason}` : ""}
+                      </div>
+                    )}
                   </button>
                 );
               })}
             </div>
           </section>
+
+          <EvaluationPanel />
         </aside>
       </section>
     </main>

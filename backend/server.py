@@ -1,6 +1,9 @@
 import ipaddress
+import json
 import os
 import socket
+import time
+from pathlib import Path
 from typing import Any, Literal, Optional
 from urllib.parse import urlparse
 
@@ -44,6 +47,10 @@ except Exception:
 if not os.getenv("GOOGLE_API_KEY"):
     SETUP_ERROR = "GOOGLE_API_KEY is required for Gemini Embedding 2 and the ADK answer flow."
 
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+EVAL_RESULTS_DIR = REPO_ROOT / "evaluation" / "results"
+BENCHMARK_PATH = REPO_ROOT / "evaluation" / "benchmark" / "benchmark_v1.json"
 
 APP_NAME = "multimodal_agentic_rag"
 USER_ID = "demo-user"
@@ -184,6 +191,143 @@ async def space():
     return await run_in_threadpool(RAG_STORE.snapshot)
 
 
+def _read_json_file(path: Path) -> dict[str, Any] | None:
+    """Read a JSON file defensively; return None on any problem."""
+    try:
+        if not path.is_file():
+            return None
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def _latest_file(pattern: str) -> Path | None:
+    try:
+        files = sorted(EVAL_RESULTS_DIR.glob(pattern))
+    except Exception:
+        return None
+    return files[-1] if files else None
+
+
+def _summarize_run(data: dict[str, Any], path: Path) -> dict[str, Any] | None:
+    """Return a small summary of a run_*.json file; None when malformed."""
+    try:
+        if not isinstance(data, dict):
+            return None
+        run = data.get("run")
+        aggregates = data.get("aggregates")
+        if not isinstance(run, dict) or not isinstance(aggregates, dict):
+            return None
+        retrieval = aggregates.get("retrieval") if isinstance(aggregates.get("retrieval"), dict) else None
+        judge = aggregates.get("judge") if isinstance(aggregates.get("judge"), dict) else None
+        unanswerable = aggregates.get("unanswerable") if isinstance(aggregates.get("unanswerable"), dict) else None
+        drift = aggregates.get("corpus_drift") if isinstance(aggregates.get("corpus_drift"), dict) else None
+        return {
+            "file": path.name,
+            "timestamp": run.get("timestamp"),
+            "benchmark_name": run.get("benchmark_name"),
+            "benchmark_version": run.get("benchmark_version"),
+            "question_count": run.get("question_count"),
+            "api_available": run.get("api_available"),
+            "embedding": run.get("embedding"),
+            "retrieval": retrieval,
+            "judge": judge,
+            "unanswerable": unanswerable,
+            "corpus_drift": drift,
+        }
+    except Exception:
+        return None
+
+
+def _summarize_comparison(data: dict[str, Any], path: Path) -> dict[str, Any] | None:
+    """Return a small summary of a comparison_*.json file; None when malformed."""
+    try:
+        if not isinstance(data, dict):
+            return None
+        run = data.get("run")
+        aggregates = data.get("aggregates")
+        if not isinstance(run, dict) or not isinstance(aggregates, dict):
+            return None
+        baseline = aggregates.get("baseline") if isinstance(aggregates.get("baseline"), dict) else None
+        improved = aggregates.get("improved") if isinstance(aggregates.get("improved"), dict) else None
+        differences = aggregates.get("differences_improved_minus_baseline")
+        if not isinstance(differences, dict):
+            differences = None
+        corpus_check = data.get("corpus_state_check") if isinstance(data.get("corpus_state_check"), dict) else None
+        mismatch = bool(corpus_check.get("mismatch")) if corpus_check else None
+        return {
+            "file": path.name,
+            "timestamp": run.get("timestamp"),
+            "benchmark_name": run.get("benchmark_name"),
+            "benchmark_version": run.get("benchmark_version"),
+            "question_count": run.get("question_count"),
+            "baseline": baseline,
+            "improved": improved,
+            "differences_improved_minus_baseline": differences,
+            "corpus_mismatch": mismatch,
+        }
+    except Exception:
+        return None
+
+
+@app.get("/evaluation/summary")
+async def evaluation_summary():
+    """Read-only summary of Phase 5/6/7 persisted results (never recomputes).
+
+    Response shape:
+    {
+      "benchmark": {name, version, question_count, counts_by_category} | None,
+      "latest_run": {...summary...} | None,            # Phase 6 metrics aggregates
+      "latest_comparison": {...summary...} | None,     # Phase 7 baseline-vs-improved
+      "notes": [str, ...]                              # empty-state / malformed-file notes
+    }
+    All three top-level fields are None (with a note) when the underlying
+    data does not exist or is malformed. This endpoint never writes.
+    """
+    notes: list[str] = []
+
+    benchmark: dict[str, Any] | None = None
+    raw_benchmark = await run_in_threadpool(_read_json_file, BENCHMARK_PATH)
+    if raw_benchmark is None:
+        notes.append("No benchmark file found yet (evaluation/benchmark/benchmark_v1.json).")
+    elif not isinstance(raw_benchmark, dict) or not isinstance(raw_benchmark.get("questions"), list):
+        notes.append("Benchmark file is malformed; ignoring it.")
+    else:
+        benchmark = {
+            "name": raw_benchmark.get("name"),
+            "version": raw_benchmark.get("version"),
+            "question_count": len(raw_benchmark["questions"]),
+            "counts_by_category": raw_benchmark.get("counts_by_category"),
+        }
+
+    latest_run: dict[str, Any] | None = None
+    run_path = await run_in_threadpool(_latest_file, "run_*.json")
+    if run_path is None:
+        notes.append("No Phase 6 evaluation run found yet (evaluation/results/run_*.json).")
+    else:
+        raw_run = await run_in_threadpool(_read_json_file, run_path)
+        latest_run = _summarize_run(raw_run, run_path) if isinstance(raw_run, dict) else None
+        if latest_run is None:
+            notes.append(f"Latest evaluation run file {run_path.name} is malformed; ignoring it.")
+
+    latest_comparison: dict[str, Any] | None = None
+    comp_path = await run_in_threadpool(_latest_file, "comparison_*.json")
+    if comp_path is None:
+        notes.append("No Phase 7 comparison found yet (evaluation/results/comparison_*.json).")
+    else:
+        raw_comp = await run_in_threadpool(_read_json_file, comp_path)
+        latest_comparison = _summarize_comparison(raw_comp, comp_path) if isinstance(raw_comp, dict) else None
+        if latest_comparison is None:
+            notes.append(f"Latest comparison file {comp_path.name} is malformed; ignoring it.")
+
+    return {
+        "benchmark": benchmark,
+        "latest_run": latest_run,
+        "latest_comparison": latest_comparison,
+        "notes": notes,
+    }
+
+
 @app.post("/sources/text")
 async def add_text_source(req: TextSourceRequest):
     try:
@@ -317,7 +461,12 @@ async def ask(req: AskRequest):
     if not req.question.strip():
         raise HTTPException(400, "Question is required.")
 
+    total_start = time.perf_counter()
+    latencies: dict[str, float] = {}
+
+    router_start = time.perf_counter()
     route = await run_in_threadpool(ROUTER.classify, req.question)
+    latencies["routing_latency"] = round((time.perf_counter() - router_start) * 1000.0, 2)
     strategy = route["strategy"]
     router_reason = route["reason"] or ""
     subqueries = list(route["subqueries"] or [])
@@ -331,6 +480,7 @@ async def ask(req: AskRequest):
         }
     ]
 
+    retrieval_start = time.perf_counter()
     if strategy == MULTI_HOP:
         candidate_k = max(1, ROUTER_MULTIHOP_CANDIDATE_K)
         candidates, space, query_point = await _retrieve_multihop(subqueries)
@@ -347,18 +497,24 @@ async def ask(req: AskRequest):
         candidates = retrieval["candidates"]
         space = retrieval["space"]
         query_point = retrieval["query_point"]
+    latencies["retrieval_latency"] = round((time.perf_counter() - retrieval_start) * 1000.0, 2)
 
     final_k = max(1, min(req.top_k, candidate_k))
+    rerank_start = time.perf_counter()
     outcome = await run_in_threadpool(rerank_and_select, RERANKER, req.question, candidates, final_k)
+    latencies["reranking_latency"] = round((time.perf_counter() - rerank_start) * 1000.0, 2)
     evidence = outcome["evidence"]
 
     insufficient = not evidence_is_sufficient(evidence, ROUTER_RELEVANCE_THRESHOLD)
     payload_evidence = [] if insufficient else evidence
     retrieval_payload = _evidence_payload(payload_evidence)
+    generation_start = time.perf_counter()
     answer = await _run_adk_agent(
         req.question, retrieval_payload, insufficient_evidence=insufficient
     )
+    latencies["generation_latency"] = round((time.perf_counter() - generation_start) * 1000.0, 2)
 
+    verification_start = time.perf_counter()
     verification = await run_in_threadpool(
         run_verification,
         VERIFIER,
@@ -367,6 +523,8 @@ async def ask(req: AskRequest):
         payload_evidence,
         [item["id"] for item in payload_evidence],
     )
+    latencies["verification_latency"] = round((time.perf_counter() - verification_start) * 1000.0, 2)
+    latencies["total_latency"] = round((time.perf_counter() - total_start) * 1000.0, 2)
 
     projection_by_source = {
         point["source_id"]: point.get("projection", {"x": 0.0, "y": 0.0, "z": 0.0})
@@ -445,8 +603,21 @@ async def ask(req: AskRequest):
 
     response = {
         "answer": answer,
+        "query": req.question,
         "matches": matches,
+        "candidates": [
+            {
+                "id": item.get("id", ""),
+                "source_id": item.get("source_id", ""),
+                "title": item.get("title", ""),
+                "similarity": item.get("similarity", 0.0),
+            }
+            for item in candidates
+        ],
+        "candidate_count": len(candidates),
         "reranked": outcome["used_reranking"],
+        "rerank_fallback": bool(outcome["fallback"]),
+        "rerank_reason": outcome["reason"],
         "strategy": strategy,
         "router_reason": router_reason,
         "subqueries": subqueries,
@@ -455,6 +626,12 @@ async def ask(req: AskRequest):
         "query_point": query_point,
         "trace": trace,
         "space": space,
+        "latencies": latencies,
+        "retrieval_latency": latencies["retrieval_latency"],
+        "reranking_latency": latencies["reranking_latency"],
+        "generation_latency": latencies["generation_latency"],
+        "verification_latency": latencies["verification_latency"],
+        "total_latency": latencies["total_latency"],
     }
     if verification["unavailable"]:
         response["verification_unavailable"] = verification["reason"]
