@@ -1,0 +1,2280 @@
+{
+  "run": {
+    "timestamp": "2026-09-13T14:16:35.770733+00:00",
+    "benchmark_name": "multimodal-rag-benchmark",
+    "benchmark_version": "1.0.0",
+    "benchmark_path": "/home/shresth/Desktop/Multimodal rag/evaluation/benchmark/benchmark_v1.json",
+    "question_count": 25,
+    "api_available": false,
+    "skip_judge": false,
+    "judge_model": "gemini-3-flash-preview",
+    "embedding": {
+      "embedding_provider": "deterministic-feature-hash",
+      "dimensions": 768
+    },
+    "k_candidates": 12,
+    "final_k": 5
+  },
+  "aggregates": {
+    "retrieval": {
+      "answerable_count": 23,
+      "recall_at_5": 0.9783,
+      "recall_at_10": 1.0,
+      "mrr": 0.9275,
+      "precision_at_5": 0.2522,
+      "precision_at_10": 0.1555
+    },
+    "unanswerable": {
+      "count": 2,
+      "correctly_handled": 1,
+      "miscount": 1
+    },
+    "judge": {
+      "total": 25,
+      "available": 0,
+      "unavailable": 25
+    },
+    "corpus_drift": {
+      "count": 0,
+      "questions": []
+    },
+    "errors": []
+  },
+  "per_question": [
+    {
+      "question_id": "q01",
+      "question": "What are the microscopic single-celled algae that live inside coral polyps and supply the coral with sugars from photosynthesis called?",
+      "category": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Zooxanthellae \u2014 the microscopic single-celled algae that live inside coral polyps, photosynthesize, and pass sugars to the coral.",
+      "expected_sources": [
+        "fba30366ee8e1438"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "fba30366ee8e1438::1",
+        "f81c62370df96fe4::1",
+        "fc0198a6255be596::1",
+        "f3237c668e501ec1::1",
+        "bf6068140572a279::2",
+        "bf6068140572a279::1",
+        "ba8539a11ede6439::1",
+        "48a12d8e4a0af28f::1",
+        "48a12d8e4a0af28f::2",
+        "6d6214e2ea752b7e::1",
+        "d885609962c2e694::2",
+        "6bdc91f0a7a20e3c::1"
+      ],
+      "retrieved_source_ids": [
+        "fba30366ee8e1438",
+        "f81c62370df96fe4",
+        "fc0198a6255be596",
+        "f3237c668e501ec1",
+        "bf6068140572a279",
+        "ba8539a11ede6439",
+        "48a12d8e4a0af28f",
+        "6d6214e2ea752b7e",
+        "d885609962c2e694",
+        "6bdc91f0a7a20e3c"
+      ],
+      "final_evidence_ids": [
+        "fba30366ee8e1438::1",
+        "f81c62370df96fe4::1",
+        "fc0198a6255be596::1",
+        "f3237c668e501ec1::1",
+        "bf6068140572a279::2"
+      ],
+      "final_evidence_count": 5,
+      "insufficient_evidence": false,
+      "answer": "",
+      "verification": {
+        "unavailable": true,
+        "reason": "No generated answer to verify.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 1.0,
+          "precision_at_5": 0.2,
+          "precision_at_10": 0.1
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.010727000017141108,
+        "retrieval_ms": 1096.1940580000373,
+        "rerank_ms": 0.05173699992155889,
+        "generation_ms": 0.0,
+        "verification_ms": 0.0,
+        "judge_ms": 0.0,
+        "total_ms": 1096.3133860000198
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q02",
+      "question": "By how much does a healthy fringe of mangroves reduce the height of an incoming wave before the water reaches the shore, according to the ingested corpus?",
+      "category": "factual",
+      "difficulty": "easy",
+      "expected_answer": "roughly two-thirds.",
+      "expected_sources": [
+        "6bdc91f0a7a20e3c"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "6bdc91f0a7a20e3c::1",
+        "d8ea298641ca782c::2",
+        "f3237c668e501ec1::1",
+        "d8ea298641ca782c::1",
+        "fba30366ee8e1438::1",
+        "fba30366ee8e1438::2",
+        "d885609962c2e694::2",
+        "ba8539a11ede6439::1",
+        "fc0198a6255be596::1",
+        "bf6068140572a279::2",
+        "6d6214e2ea752b7e::1",
+        "bf6068140572a279::1"
+      ],
+      "retrieved_source_ids": [
+        "6bdc91f0a7a20e3c",
+        "d8ea298641ca782c",
+        "f3237c668e501ec1",
+        "fba30366ee8e1438",
+        "d885609962c2e694",
+        "ba8539a11ede6439",
+        "fc0198a6255be596",
+        "bf6068140572a279",
+        "6d6214e2ea752b7e"
+      ],
+      "final_evidence_ids": [
+        "6bdc91f0a7a20e3c::1",
+        "d8ea298641ca782c::2",
+        "f3237c668e501ec1::1",
+        "d8ea298641ca782c::1",
+        "fba30366ee8e1438::1"
+      ],
+      "final_evidence_count": 5,
+      "insufficient_evidence": false,
+      "answer": "",
+      "verification": {
+        "unavailable": true,
+        "reason": "No generated answer to verify.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 1.0,
+          "precision_at_5": 0.2,
+          "precision_at_10": 0.1111
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.009808999948290875,
+        "retrieval_ms": 2211.067395999862,
+        "rerank_ms": 0.08673599995745462,
+        "generation_ms": 0.0,
+        "verification_ms": 0.0,
+        "judge_ms": 0.0,
+        "total_ms": 2211.2487660001534
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q03",
+      "question": "What is the name of the root-like anchoring structure that attaches giant kelp to the seafloor?",
+      "category": "factual",
+      "difficulty": "easy",
+      "expected_answer": "holdfast.",
+      "expected_sources": [
+        "48a12d8e4a0af28f"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "48a12d8e4a0af28f::1",
+        "6bdc91f0a7a20e3c::1",
+        "6d6214e2ea752b7e::1",
+        "48a12d8e4a0af28f::2",
+        "d8ea298641ca782c::2",
+        "6bdc91f0a7a20e3c::2",
+        "f81c62370df96fe4::1",
+        "d885609962c2e694::2",
+        "6d6214e2ea752b7e::2",
+        "fba30366ee8e1438::1",
+        "fba30366ee8e1438::2",
+        "bf6068140572a279::1"
+      ],
+      "retrieved_source_ids": [
+        "48a12d8e4a0af28f",
+        "6bdc91f0a7a20e3c",
+        "6d6214e2ea752b7e",
+        "d8ea298641ca782c",
+        "f81c62370df96fe4",
+        "d885609962c2e694",
+        "fba30366ee8e1438",
+        "bf6068140572a279"
+      ],
+      "final_evidence_ids": [],
+      "final_evidence_count": 5,
+      "insufficient_evidence": true,
+      "answer": "The available evidence is insufficient to answer the question.",
+      "verification": {
+        "unavailable": true,
+        "reason": "Verification skipped: no evidence was available to ground or verify this answer.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 1.0,
+          "precision_at_5": 0.2,
+          "precision_at_10": 0.125
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.015510999901380274,
+        "retrieval_ms": 1751.942955000004,
+        "rerank_ms": 0.06340499999168969,
+        "generation_ms": 0.0,
+        "verification_ms": 0.009933999990607845,
+        "judge_ms": 0.0,
+        "total_ms": 1752.1006750000652
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q04",
+      "question": "Which IUCN protected-area categories cover the strictest no-take zones where all fishing and extraction are banned?",
+      "category": "factual",
+      "difficulty": "medium",
+      "expected_answer": "categories I and II.",
+      "expected_sources": [
+        "d8ea298641ca782c"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "d8ea298641ca782c::1",
+        "fba30366ee8e1438::2",
+        "d885609962c2e694::1",
+        "fba30366ee8e1438::1",
+        "6bdc91f0a7a20e3c::2",
+        "f81c62370df96fe4::1",
+        "bf6068140572a279::1",
+        "f3237c668e501ec1::1",
+        "d885609962c2e694::2",
+        "6d6214e2ea752b7e::1",
+        "6d6214e2ea752b7e::2",
+        "d8ea298641ca782c::2"
+      ],
+      "retrieved_source_ids": [
+        "d8ea298641ca782c",
+        "fba30366ee8e1438",
+        "d885609962c2e694",
+        "6bdc91f0a7a20e3c",
+        "f81c62370df96fe4",
+        "bf6068140572a279",
+        "f3237c668e501ec1",
+        "6d6214e2ea752b7e"
+      ],
+      "final_evidence_ids": [
+        "d8ea298641ca782c::1",
+        "fba30366ee8e1438::2",
+        "d885609962c2e694::1",
+        "fba30366ee8e1438::1",
+        "6bdc91f0a7a20e3c::2"
+      ],
+      "final_evidence_count": 5,
+      "insufficient_evidence": false,
+      "answer": "",
+      "verification": {
+        "unavailable": true,
+        "reason": "No generated answer to verify.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 1.0,
+          "precision_at_5": 0.2,
+          "precision_at_10": 0.125
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.007362999895121902,
+        "retrieval_ms": 1126.3046849999228,
+        "rerank_ms": 0.08713099987289752,
+        "generation_ms": 0.0,
+        "verification_ms": 0.0,
+        "judge_ms": 0.0,
+        "total_ms": 1126.4782909997848
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q05",
+      "question": "What is the dominant salt-tolerant grass that fills temperate salt marshes?",
+      "category": "factual",
+      "difficulty": "easy",
+      "expected_answer": "cordgrass.",
+      "expected_sources": [
+        "d885609962c2e694"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "d885609962c2e694::1",
+        "d8ea298641ca782c::2",
+        "6d6214e2ea752b7e::1",
+        "f3237c668e501ec1::1",
+        "fba30366ee8e1438::2",
+        "bf6068140572a279::1",
+        "d8ea298641ca782c::1",
+        "6d6214e2ea752b7e::2",
+        "6bdc91f0a7a20e3c::1",
+        "6bdc91f0a7a20e3c::2",
+        "bf6068140572a279::2",
+        "48a12d8e4a0af28f::2"
+      ],
+      "retrieved_source_ids": [
+        "d885609962c2e694",
+        "d8ea298641ca782c",
+        "6d6214e2ea752b7e",
+        "f3237c668e501ec1",
+        "fba30366ee8e1438",
+        "bf6068140572a279",
+        "6bdc91f0a7a20e3c",
+        "48a12d8e4a0af28f"
+      ],
+      "final_evidence_ids": [
+        "d885609962c2e694::1",
+        "d8ea298641ca782c::2",
+        "6d6214e2ea752b7e::1",
+        "f3237c668e501ec1::1",
+        "fba30366ee8e1438::2"
+      ],
+      "final_evidence_count": 5,
+      "insufficient_evidence": false,
+      "answer": "",
+      "verification": {
+        "unavailable": true,
+        "reason": "No generated answer to verify.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 1.0,
+          "precision_at_5": 0.2,
+          "precision_at_10": 0.125
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.014313000065158121,
+        "retrieval_ms": 1020.3265950001423,
+        "rerank_ms": 0.04026500005238631,
+        "generation_ms": 0.0,
+        "verification_ms": 0.0,
+        "judge_ms": 0.0,
+        "total_ms": 1020.4304760000014
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q06",
+      "question": "Which fully submerged blue carbon ecosystem spreads by cloning itself through creeping horizontal underground stems and cannot tolerate long exposure to open air?",
+      "category": "semantic",
+      "difficulty": "medium",
+      "expected_answer": "Seagrass meadows are communities of flowering plants that live fully submerged, spread by creeping horizontal stems called rhizomes, and cannot tolerate long exposure to open air.",
+      "expected_sources": [
+        "bf6068140572a279"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "bf6068140572a279::2",
+        "bf6068140572a279::1",
+        "6d6214e2ea752b7e::1",
+        "48a12d8e4a0af28f::2",
+        "48a12d8e4a0af28f::1",
+        "6bdc91f0a7a20e3c::1",
+        "d8ea298641ca782c::1",
+        "6bdc91f0a7a20e3c::2",
+        "ba8539a11ede6439::1",
+        "f81c62370df96fe4::1",
+        "d885609962c2e694::1",
+        "6d6214e2ea752b7e::2"
+      ],
+      "retrieved_source_ids": [
+        "bf6068140572a279",
+        "6d6214e2ea752b7e",
+        "48a12d8e4a0af28f",
+        "6bdc91f0a7a20e3c",
+        "d8ea298641ca782c",
+        "ba8539a11ede6439",
+        "f81c62370df96fe4",
+        "d885609962c2e694"
+      ],
+      "final_evidence_ids": [
+        "bf6068140572a279::2",
+        "bf6068140572a279::1",
+        "6d6214e2ea752b7e::1",
+        "48a12d8e4a0af28f::2",
+        "48a12d8e4a0af28f::1"
+      ],
+      "final_evidence_count": 5,
+      "insufficient_evidence": false,
+      "answer": "",
+      "verification": {
+        "unavailable": true,
+        "reason": "No generated answer to verify.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 1.0,
+          "precision_at_5": 0.2,
+          "precision_at_10": 0.125
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.006306999921434908,
+        "retrieval_ms": 2476.8234269999994,
+        "rerank_ms": 0.08779299992056622,
+        "generation_ms": 0.0,
+        "verification_ms": 0.0,
+        "judge_ms": 0.0,
+        "total_ms": 2476.9939580000937
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q07",
+      "question": "In which ecosystem do colonies of tiny animals rely on microscopic plant-like partners for most of their energy while the animals' rocky skeleton grows only a few centimeters each year?",
+      "category": "semantic",
+      "difficulty": "hard",
+      "expected_answer": "Coral reefs: colonies of tiny animals called polyps, which give shelter and nutrients to the zooxanthellae inside them.",
+      "expected_sources": [
+        "fba30366ee8e1438"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "fba30366ee8e1438::1",
+        "6d6214e2ea752b7e::1",
+        "fba30366ee8e1438::2",
+        "f3237c668e501ec1::1",
+        "d8ea298641ca782c::2",
+        "f81c62370df96fe4::1",
+        "48a12d8e4a0af28f::2",
+        "6d6214e2ea752b7e::2",
+        "d8ea298641ca782c::1",
+        "bf6068140572a279::2",
+        "48a12d8e4a0af28f::1",
+        "ba8539a11ede6439::1"
+      ],
+      "retrieved_source_ids": [
+        "fba30366ee8e1438",
+        "6d6214e2ea752b7e",
+        "f3237c668e501ec1",
+        "d8ea298641ca782c",
+        "f81c62370df96fe4",
+        "48a12d8e4a0af28f",
+        "bf6068140572a279",
+        "ba8539a11ede6439"
+      ],
+      "final_evidence_ids": [
+        "fba30366ee8e1438::1",
+        "6d6214e2ea752b7e::1",
+        "fba30366ee8e1438::2",
+        "f3237c668e501ec1::1",
+        "d8ea298641ca782c::2"
+      ],
+      "final_evidence_count": 5,
+      "insufficient_evidence": false,
+      "answer": "",
+      "verification": {
+        "unavailable": true,
+        "reason": "No generated answer to verify.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 1.0,
+          "precision_at_5": 0.2,
+          "precision_at_10": 0.125
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.015655999959562905,
+        "retrieval_ms": 1883.7610289999702,
+        "rerank_ms": 0.05504399996425491,
+        "generation_ms": 0.0,
+        "verification_ms": 0.0,
+        "judge_ms": 0.0,
+        "total_ms": 1883.8966490000075
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q08",
+      "question": "In which kind of wetland does dead plant matter pile up for thousands of years as a carbon-rich layer because decay is slow in cold, waterlogged ground?",
+      "category": "semantic",
+      "difficulty": "medium",
+      "expected_answer": "Peatlands (bogs, fens, and swamps) \u2014 the freshwater wetlands in which dead plants build up as layers of peat.",
+      "expected_sources": [
+        "f81c62370df96fe4"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "f81c62370df96fe4::1",
+        "6d6214e2ea752b7e::2",
+        "6d6214e2ea752b7e::1",
+        "6bdc91f0a7a20e3c::1",
+        "fc0198a6255be596::1",
+        "48a12d8e4a0af28f::1",
+        "bf6068140572a279::1",
+        "f3237c668e501ec1::1",
+        "6bdc91f0a7a20e3c::2",
+        "d885609962c2e694::1",
+        "fba30366ee8e1438::2",
+        "d8ea298641ca782c::1"
+      ],
+      "retrieved_source_ids": [
+        "f81c62370df96fe4",
+        "6d6214e2ea752b7e",
+        "6bdc91f0a7a20e3c",
+        "fc0198a6255be596",
+        "48a12d8e4a0af28f",
+        "bf6068140572a279",
+        "f3237c668e501ec1",
+        "d885609962c2e694",
+        "fba30366ee8e1438",
+        "d8ea298641ca782c"
+      ],
+      "final_evidence_ids": [
+        "f81c62370df96fe4::1",
+        "6d6214e2ea752b7e::2",
+        "6d6214e2ea752b7e::1",
+        "6bdc91f0a7a20e3c::1",
+        "fc0198a6255be596::1"
+      ],
+      "final_evidence_count": 5,
+      "insufficient_evidence": false,
+      "answer": "",
+      "verification": {
+        "unavailable": true,
+        "reason": "No generated answer to verify.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 1.0,
+          "precision_at_5": 0.2,
+          "precision_at_10": 0.1
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.01890600015030941,
+        "retrieval_ms": 1440.452822999987,
+        "rerank_ms": 0.043193000010433025,
+        "generation_ms": 0.0,
+        "verification_ms": 0.0,
+        "judge_ms": 0.0,
+        "total_ms": 1440.580164000039
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q09",
+      "question": "Which coastal habitat is made of giant algae that have no true roots or leaves and grows best where the water is cold and full of nutrients?",
+      "category": "semantic",
+      "difficulty": "medium",
+      "expected_answer": "Kelp forests \u2014 large brown algae that hold to the seafloor with a root-like grip called a holdfast.",
+      "expected_sources": [
+        "48a12d8e4a0af28f"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "48a12d8e4a0af28f::1",
+        "bf6068140572a279::1",
+        "f3237c668e501ec1::1",
+        "6bdc91f0a7a20e3c::1",
+        "bf6068140572a279::2",
+        "fba30366ee8e1438::1",
+        "d885609962c2e694::1",
+        "f81c62370df96fe4::1",
+        "6bdc91f0a7a20e3c::2",
+        "fc0198a6255be596::1",
+        "fba30366ee8e1438::2",
+        "ba8539a11ede6439::1"
+      ],
+      "retrieved_source_ids": [
+        "48a12d8e4a0af28f",
+        "bf6068140572a279",
+        "f3237c668e501ec1",
+        "6bdc91f0a7a20e3c",
+        "fba30366ee8e1438",
+        "d885609962c2e694",
+        "f81c62370df96fe4",
+        "fc0198a6255be596",
+        "ba8539a11ede6439"
+      ],
+      "final_evidence_ids": [],
+      "final_evidence_count": 5,
+      "insufficient_evidence": true,
+      "answer": "The available evidence is insufficient to answer the question.",
+      "verification": {
+        "unavailable": true,
+        "reason": "Verification skipped: no evidence was available to ground or verify this answer.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 1.0,
+          "precision_at_5": 0.2,
+          "precision_at_10": 0.1111
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.006708999990223674,
+        "retrieval_ms": 2372.343860000001,
+        "rerank_ms": 0.15801900008227676,
+        "generation_ms": 0.0,
+        "verification_ms": 0.01939999992828234,
+        "judge_ms": 0.0,
+        "total_ms": 2372.627072999876
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q10",
+      "question": "Which ocean-management tool lets fish rebuild inside a protected area and then drift out to raise catches in the neighboring fishing grounds?",
+      "category": "semantic",
+      "difficulty": "medium",
+      "expected_answer": "No-take zones inside marine protected areas, which produce a spillover effect: fish sheltered inside the reserve grow large, reproduce, and drift into neighboring fishing grounds, boosting the catch just outside the boundary.",
+      "expected_sources": [
+        "d8ea298641ca782c"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "d8ea298641ca782c::1",
+        "6d6214e2ea752b7e::1",
+        "f3237c668e501ec1::1",
+        "6bdc91f0a7a20e3c::2",
+        "fba30366ee8e1438::1",
+        "fba30366ee8e1438::2",
+        "6bdc91f0a7a20e3c::1",
+        "ba8539a11ede6439::1",
+        "d885609962c2e694::1",
+        "6d6214e2ea752b7e::2",
+        "d8ea298641ca782c::2",
+        "f81c62370df96fe4::1"
+      ],
+      "retrieved_source_ids": [
+        "d8ea298641ca782c",
+        "6d6214e2ea752b7e",
+        "f3237c668e501ec1",
+        "6bdc91f0a7a20e3c",
+        "fba30366ee8e1438",
+        "ba8539a11ede6439",
+        "d885609962c2e694",
+        "f81c62370df96fe4"
+      ],
+      "final_evidence_ids": [
+        "d8ea298641ca782c::1",
+        "6d6214e2ea752b7e::1",
+        "f3237c668e501ec1::1",
+        "6bdc91f0a7a20e3c::2",
+        "fba30366ee8e1438::1"
+      ],
+      "final_evidence_count": 5,
+      "insufficient_evidence": false,
+      "answer": "",
+      "verification": {
+        "unavailable": true,
+        "reason": "No generated answer to verify.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 1.0,
+          "precision_at_5": 0.2,
+          "precision_at_10": 0.125
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.01918399993883213,
+        "retrieval_ms": 1539.5751379999183,
+        "rerank_ms": 0.05545499993786507,
+        "generation_ms": 0.0,
+        "verification_ms": 0.0,
+        "judge_ms": 0.0,
+        "total_ms": 1539.7223919999306
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q11",
+      "question": "At what rate does a seagrass hectare accumulate carbon in its soils each year, according to the field measurements in the ingested corpus?",
+      "category": "difficult",
+      "difficulty": "hard",
+      "expected_answer": "a rate near 138 grams of carbon per square meter each year.",
+      "expected_sources": [
+        "bf6068140572a279"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "bf6068140572a279::2",
+        "bf6068140572a279::1",
+        "6d6214e2ea752b7e::1",
+        "fba30366ee8e1438::1",
+        "f3237c668e501ec1::1",
+        "d8ea298641ca782c::1",
+        "fba30366ee8e1438::2",
+        "48a12d8e4a0af28f::2",
+        "d885609962c2e694::1",
+        "d8ea298641ca782c::2",
+        "48a12d8e4a0af28f::1",
+        "f81c62370df96fe4::1"
+      ],
+      "retrieved_source_ids": [
+        "bf6068140572a279",
+        "6d6214e2ea752b7e",
+        "fba30366ee8e1438",
+        "f3237c668e501ec1",
+        "d8ea298641ca782c",
+        "48a12d8e4a0af28f",
+        "d885609962c2e694",
+        "f81c62370df96fe4"
+      ],
+      "final_evidence_ids": [
+        "bf6068140572a279::2",
+        "bf6068140572a279::1",
+        "6d6214e2ea752b7e::1",
+        "fba30366ee8e1438::1",
+        "f3237c668e501ec1::1"
+      ],
+      "final_evidence_count": 5,
+      "insufficient_evidence": false,
+      "answer": "",
+      "verification": {
+        "unavailable": true,
+        "reason": "No generated answer to verify.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 1.0,
+          "precision_at_5": 0.2,
+          "precision_at_10": 0.125
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.009319000128016341,
+        "retrieval_ms": 1378.713100000141,
+        "rerank_ms": 0.0575409999328258,
+        "generation_ms": 0.0,
+        "verification_ms": 0.0,
+        "judge_ms": 0.0,
+        "total_ms": 1378.8349190001554
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q12",
+      "question": "In mangrove trees, which species filters salt out at its roots and which species pushes excess salt out through glands on its leaves?",
+      "category": "difficult",
+      "difficulty": "hard",
+      "expected_answer": "Red mangroves filter most of the salt out at the roots, while black mangroves push excess salt out through special glands on their leaves.",
+      "expected_sources": [
+        "6bdc91f0a7a20e3c"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "6bdc91f0a7a20e3c::1",
+        "6d6214e2ea752b7e::1",
+        "ba8539a11ede6439::1",
+        "d8ea298641ca782c::2",
+        "fc0198a6255be596::1",
+        "6bdc91f0a7a20e3c::2",
+        "6d6214e2ea752b7e::2",
+        "f3237c668e501ec1::1",
+        "d885609962c2e694::1",
+        "bf6068140572a279::1",
+        "f81c62370df96fe4::1",
+        "fba30366ee8e1438::1"
+      ],
+      "retrieved_source_ids": [
+        "6bdc91f0a7a20e3c",
+        "6d6214e2ea752b7e",
+        "ba8539a11ede6439",
+        "d8ea298641ca782c",
+        "fc0198a6255be596",
+        "f3237c668e501ec1",
+        "d885609962c2e694",
+        "bf6068140572a279",
+        "f81c62370df96fe4",
+        "fba30366ee8e1438"
+      ],
+      "final_evidence_ids": [
+        "6bdc91f0a7a20e3c::1",
+        "6d6214e2ea752b7e::1",
+        "ba8539a11ede6439::1",
+        "d8ea298641ca782c::2",
+        "fc0198a6255be596::1"
+      ],
+      "final_evidence_count": 5,
+      "insufficient_evidence": false,
+      "answer": "",
+      "verification": {
+        "unavailable": true,
+        "reason": "No generated answer to verify.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 1.0,
+          "precision_at_5": 0.2,
+          "precision_at_10": 0.1
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.00894899994818843,
+        "retrieval_ms": 1155.4975589999685,
+        "rerank_ms": 0.1603299999715091,
+        "generation_ms": 0.0,
+        "verification_ms": 0.0,
+        "judge_ms": 0.0,
+        "total_ms": 1155.7605079999576
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q13",
+      "question": "How does a healthy salt marsh keep from drowning as sea level rises?",
+      "category": "difficult",
+      "difficulty": "hard",
+      "expected_answer": "Marsh stems slow the moving water so that suspended sediment settles out and the marsh builds upward as sea level rises; that accretion keeps healthy marshes roughly level with a moderate rise in the sea.",
+      "expected_sources": [
+        "d885609962c2e694"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "d885609962c2e694::1",
+        "6d6214e2ea752b7e::1",
+        "6bdc91f0a7a20e3c::1",
+        "d8ea298641ca782c::2",
+        "fba30366ee8e1438::2",
+        "48a12d8e4a0af28f::1",
+        "d885609962c2e694::2",
+        "f3237c668e501ec1::1",
+        "48a12d8e4a0af28f::2",
+        "d8ea298641ca782c::1",
+        "6d6214e2ea752b7e::2",
+        "fba30366ee8e1438::1"
+      ],
+      "retrieved_source_ids": [
+        "d885609962c2e694",
+        "6d6214e2ea752b7e",
+        "6bdc91f0a7a20e3c",
+        "d8ea298641ca782c",
+        "fba30366ee8e1438",
+        "48a12d8e4a0af28f",
+        "f3237c668e501ec1"
+      ],
+      "final_evidence_ids": [
+        "d885609962c2e694::1",
+        "6d6214e2ea752b7e::1",
+        "6bdc91f0a7a20e3c::1",
+        "d8ea298641ca782c::2",
+        "fba30366ee8e1438::2"
+      ],
+      "final_evidence_count": 5,
+      "insufficient_evidence": false,
+      "answer": "",
+      "verification": {
+        "unavailable": true,
+        "reason": "No generated answer to verify.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 1.0,
+          "precision_at_5": 0.2,
+          "precision_at_10": 0.1429
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.023272999897017144,
+        "retrieval_ms": 2607.8229380000266,
+        "rerank_ms": 0.11697900004037365,
+        "generation_ms": 0.0,
+        "verification_ms": 0.0,
+        "judge_ms": 0.0,
+        "total_ms": 2608.083423999915
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q14",
+      "question": "Through which predator-prey chain could a declining sea otter population turn a kelp forest into an urchin barren?",
+      "category": "difficult",
+      "difficulty": "hard",
+      "expected_answer": "When otters decline the urchin population explodes and grazes the kelp down to the bare holdfasts, a stripped ground called an urchin barren.",
+      "expected_sources": [
+        "48a12d8e4a0af28f"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "48a12d8e4a0af28f::1",
+        "d8ea298641ca782c::2",
+        "48a12d8e4a0af28f::2",
+        "6d6214e2ea752b7e::1",
+        "bf6068140572a279::1",
+        "d8ea298641ca782c::1",
+        "f3237c668e501ec1::1",
+        "fc0198a6255be596::1",
+        "d885609962c2e694::1",
+        "6bdc91f0a7a20e3c::2",
+        "6bdc91f0a7a20e3c::1",
+        "fba30366ee8e1438::2"
+      ],
+      "retrieved_source_ids": [
+        "48a12d8e4a0af28f",
+        "d8ea298641ca782c",
+        "6d6214e2ea752b7e",
+        "bf6068140572a279",
+        "f3237c668e501ec1",
+        "fc0198a6255be596",
+        "d885609962c2e694",
+        "6bdc91f0a7a20e3c",
+        "fba30366ee8e1438"
+      ],
+      "final_evidence_ids": [],
+      "final_evidence_count": 5,
+      "insufficient_evidence": true,
+      "answer": "The available evidence is insufficient to answer the question.",
+      "verification": {
+        "unavailable": true,
+        "reason": "Verification skipped: no evidence was available to ground or verify this answer.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 1.0,
+          "precision_at_5": 0.2,
+          "precision_at_10": 0.1111
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.019510999891281244,
+        "retrieval_ms": 1265.9340000000157,
+        "rerank_ms": 0.07674999983464659,
+        "generation_ms": 0.0,
+        "verification_ms": 0.0074920001225109445,
+        "judge_ms": 0.0,
+        "total_ms": 1266.1326120000922
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q15",
+      "question": "Where do seagrass meadows and salt marshes each store most of their blue carbon, and how does that differ?",
+      "category": "comparison",
+      "difficulty": "hard",
+      "expected_answer": "Seagrass stores carbon in both the plant tissue and the sediment laid down beneath the meadow over centuries; salt marshes store carbon in their soils at high rates and very little in standing plant tissue, because the marsh grass dies back every winter.",
+      "expected_sources": [
+        "bf6068140572a279",
+        "d885609962c2e694"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "6d6214e2ea752b7e::1",
+        "bf6068140572a279::1",
+        "d885609962c2e694::1",
+        "bf6068140572a279::2",
+        "6bdc91f0a7a20e3c::1",
+        "48a12d8e4a0af28f::2",
+        "6d6214e2ea752b7e::2",
+        "d8ea298641ca782c::1",
+        "ba8539a11ede6439::1",
+        "d8ea298641ca782c::2",
+        "fba30366ee8e1438::2",
+        "fc0198a6255be596::1"
+      ],
+      "retrieved_source_ids": [
+        "6d6214e2ea752b7e",
+        "bf6068140572a279",
+        "d885609962c2e694",
+        "6bdc91f0a7a20e3c",
+        "48a12d8e4a0af28f",
+        "d8ea298641ca782c",
+        "ba8539a11ede6439",
+        "fba30366ee8e1438",
+        "fc0198a6255be596"
+      ],
+      "final_evidence_ids": [
+        "6d6214e2ea752b7e::1",
+        "bf6068140572a279::1",
+        "d885609962c2e694::1",
+        "bf6068140572a279::2",
+        "6bdc91f0a7a20e3c::1"
+      ],
+      "final_evidence_count": 5,
+      "insufficient_evidence": false,
+      "answer": "",
+      "verification": {
+        "unavailable": true,
+        "reason": "No generated answer to verify.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 0.5,
+          "precision_at_5": 0.4,
+          "precision_at_10": 0.2222
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.008008000122572412,
+        "retrieval_ms": 1302.010257999882,
+        "rerank_ms": 0.10401000008641859,
+        "generation_ms": 0.0,
+        "verification_ms": 0.0,
+        "judge_ms": 0.0,
+        "total_ms": 1302.3998220000976
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q16",
+      "question": "How do mangroves and peatlands differ in where they keep their stored carbon?",
+      "category": "comparison",
+      "difficulty": "medium",
+      "expected_answer": "Mangroves store carbon in both the living trees and the deep organic-rich mud beneath them; peatlands keep almost all of their carbon belowground, locked inside the peat itself.",
+      "expected_sources": [
+        "6bdc91f0a7a20e3c",
+        "f81c62370df96fe4"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "48a12d8e4a0af28f::1",
+        "f81c62370df96fe4::1",
+        "6bdc91f0a7a20e3c::1",
+        "6d6214e2ea752b7e::1",
+        "bf6068140572a279::1",
+        "6d6214e2ea752b7e::2",
+        "fba30366ee8e1438::2",
+        "d885609962c2e694::2",
+        "48a12d8e4a0af28f::2",
+        "6bdc91f0a7a20e3c::2",
+        "d885609962c2e694::1",
+        "bf6068140572a279::2"
+      ],
+      "retrieved_source_ids": [
+        "48a12d8e4a0af28f",
+        "f81c62370df96fe4",
+        "6bdc91f0a7a20e3c",
+        "6d6214e2ea752b7e",
+        "bf6068140572a279",
+        "fba30366ee8e1438",
+        "d885609962c2e694"
+      ],
+      "final_evidence_ids": [],
+      "final_evidence_count": 5,
+      "insufficient_evidence": true,
+      "answer": "The available evidence is insufficient to answer the question.",
+      "verification": {
+        "unavailable": true,
+        "reason": "Verification skipped: no evidence was available to ground or verify this answer.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 0.5,
+          "precision_at_5": 0.4,
+          "precision_at_10": 0.2857
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.024957000050562783,
+        "retrieval_ms": 1928.9580899999237,
+        "rerank_ms": 0.12317900018388173,
+        "generation_ms": 0.0,
+        "verification_ms": 0.016131999927893048,
+        "judge_ms": 0.0,
+        "total_ms": 1929.2380020001474
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q17",
+      "question": "Which grows faster, a coral reef or a kelp forest, and which of the two is more species-rich?",
+      "category": "comparison",
+      "difficulty": "hard",
+      "expected_answer": "Kelp forests grow quickly but hold lower species richness; coral reefs add only a few centimeters of skeleton per year and are among the most species-rich ecosystems in the ocean.",
+      "expected_sources": [
+        "48a12d8e4a0af28f",
+        "fba30366ee8e1438"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "fba30366ee8e1438::1",
+        "fba30366ee8e1438::2",
+        "d8ea298641ca782c::2",
+        "d885609962c2e694::1",
+        "f3237c668e501ec1::1",
+        "bf6068140572a279::1",
+        "48a12d8e4a0af28f::1",
+        "d885609962c2e694::2",
+        "f81c62370df96fe4::1",
+        "48a12d8e4a0af28f::2",
+        "6bdc91f0a7a20e3c::1",
+        "6bdc91f0a7a20e3c::2"
+      ],
+      "retrieved_source_ids": [
+        "fba30366ee8e1438",
+        "d8ea298641ca782c",
+        "d885609962c2e694",
+        "f3237c668e501ec1",
+        "bf6068140572a279",
+        "48a12d8e4a0af28f",
+        "f81c62370df96fe4",
+        "6bdc91f0a7a20e3c"
+      ],
+      "final_evidence_ids": [
+        "fba30366ee8e1438::1",
+        "fba30366ee8e1438::2",
+        "d8ea298641ca782c::2",
+        "d885609962c2e694::1",
+        "f3237c668e501ec1::1"
+      ],
+      "final_evidence_count": 5,
+      "insufficient_evidence": false,
+      "answer": "",
+      "verification": {
+        "unavailable": true,
+        "reason": "No generated answer to verify.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 0.5,
+          "recall_at_10": 1.0,
+          "mrr": 1.0,
+          "precision_at_5": 0.2,
+          "precision_at_10": 0.25
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.02018700001826801,
+        "retrieval_ms": 2232.172971000182,
+        "rerank_ms": 0.05446099999062426,
+        "generation_ms": 0.0,
+        "verification_ms": 0.0,
+        "judge_ms": 0.0,
+        "total_ms": 2232.315437000125
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q18",
+      "question": "Why does ocean acidification slow down the building of new coral skeleton?",
+      "category": "multi_hop",
+      "difficulty": "hard",
+      "expected_answer": "Carbon dioxide dissolves into seawater and forms carbonic acid, which releases hydrogen ions; those hydrogen ions combine with carbonate ions, making carbonate ions less available, and corals need those carbonate ions to build the calcium-carbonate skeleton that their polyps form, so with fewer carbonate ions corals add new skeleton more slowly.",
+      "expected_sources": [
+        "f3237c668e501ec1",
+        "fba30366ee8e1438"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "fba30366ee8e1438::1",
+        "fba30366ee8e1438::2",
+        "f3237c668e501ec1::1",
+        "bf6068140572a279::2",
+        "6d6214e2ea752b7e::1",
+        "f81c62370df96fe4::1",
+        "6d6214e2ea752b7e::2",
+        "d885609962c2e694::1",
+        "d8ea298641ca782c::1",
+        "6bdc91f0a7a20e3c::1",
+        "48a12d8e4a0af28f::1",
+        "48a12d8e4a0af28f::2"
+      ],
+      "retrieved_source_ids": [
+        "fba30366ee8e1438",
+        "f3237c668e501ec1",
+        "bf6068140572a279",
+        "6d6214e2ea752b7e",
+        "f81c62370df96fe4",
+        "d885609962c2e694",
+        "d8ea298641ca782c",
+        "6bdc91f0a7a20e3c",
+        "48a12d8e4a0af28f"
+      ],
+      "final_evidence_ids": [
+        "fba30366ee8e1438::1",
+        "fba30366ee8e1438::2",
+        "f3237c668e501ec1::1",
+        "bf6068140572a279::2",
+        "6d6214e2ea752b7e::1"
+      ],
+      "final_evidence_count": 5,
+      "insufficient_evidence": false,
+      "answer": "",
+      "verification": {
+        "unavailable": true,
+        "reason": "No generated answer to verify.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 1.0,
+          "precision_at_5": 0.4,
+          "precision_at_10": 0.2222
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.008083000011538388,
+        "retrieval_ms": 973.1549579998955,
+        "rerank_ms": 0.06560399992849852,
+        "generation_ms": 0.0,
+        "verification_ms": 0.0,
+        "judge_ms": 0.0,
+        "total_ms": 973.283347000006
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q19",
+      "question": "How does converting mangrove forests into shrimp ponds damage both the regional shrimp catch and the coast's protection from waves?",
+      "category": "multi_hop",
+      "difficulty": "hard",
+      "expected_answer": "Shrimp yield tracks the remaining mangrove area, because fish and shrimp pass part of their lives as juveniles inside mangrove creeks; mangroves shield the coast from storm surges and reduce the height of an incoming wave by roughly two-thirds.",
+      "expected_sources": [
+        "ba8539a11ede6439",
+        "6bdc91f0a7a20e3c"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "ba8539a11ede6439::1",
+        "6bdc91f0a7a20e3c::1",
+        "fc0198a6255be596::1",
+        "d8ea298641ca782c::2",
+        "6d6214e2ea752b7e::1",
+        "d885609962c2e694::2",
+        "d885609962c2e694::1",
+        "6d6214e2ea752b7e::2",
+        "6bdc91f0a7a20e3c::2",
+        "bf6068140572a279::1",
+        "f81c62370df96fe4::1",
+        "48a12d8e4a0af28f::1"
+      ],
+      "retrieved_source_ids": [
+        "ba8539a11ede6439",
+        "6bdc91f0a7a20e3c",
+        "fc0198a6255be596",
+        "d8ea298641ca782c",
+        "6d6214e2ea752b7e",
+        "d885609962c2e694",
+        "bf6068140572a279",
+        "f81c62370df96fe4",
+        "48a12d8e4a0af28f"
+      ],
+      "final_evidence_ids": [
+        "ba8539a11ede6439::1",
+        "6bdc91f0a7a20e3c::1",
+        "fc0198a6255be596::1",
+        "d8ea298641ca782c::2",
+        "6d6214e2ea752b7e::1"
+      ],
+      "final_evidence_count": 5,
+      "insufficient_evidence": false,
+      "answer": "",
+      "verification": {
+        "unavailable": true,
+        "reason": "No generated answer to verify.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 1.0,
+          "precision_at_5": 0.4,
+          "precision_at_10": 0.2222
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.009627000054024393,
+        "retrieval_ms": 1338.061198999867,
+        "rerank_ms": 0.2014799999869865,
+        "generation_ms": 0.0,
+        "verification_ms": 0.0,
+        "judge_ms": 0.0,
+        "total_ms": 1338.4870110000975
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q20",
+      "question": "Why might a strictly protected no-take marine reserve still lose its corals?",
+      "category": "multi_hop",
+      "difficulty": "hard",
+      "expected_answer": "A park boundary alone does not guarantee a healthy reef, because climate-driven bleaching and acidified waters can harm protected reefs just as much as unprotected ones: warming seawater triggers coral bleaching, and under ocean acidification fewer carbonate ions are available so corals add new skeleton more slowly.",
+      "expected_sources": [
+        "d8ea298641ca782c",
+        "f3237c668e501ec1"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "d8ea298641ca782c::1",
+        "fba30366ee8e1438::2",
+        "f3237c668e501ec1::1",
+        "d8ea298641ca782c::2",
+        "fba30366ee8e1438::1",
+        "ba8539a11ede6439::1",
+        "d885609962c2e694::1",
+        "d885609962c2e694::2",
+        "6bdc91f0a7a20e3c::2",
+        "bf6068140572a279::1",
+        "6d6214e2ea752b7e::2",
+        "bf6068140572a279::2"
+      ],
+      "retrieved_source_ids": [
+        "d8ea298641ca782c",
+        "fba30366ee8e1438",
+        "f3237c668e501ec1",
+        "ba8539a11ede6439",
+        "d885609962c2e694",
+        "6bdc91f0a7a20e3c",
+        "bf6068140572a279",
+        "6d6214e2ea752b7e"
+      ],
+      "final_evidence_ids": [
+        "d8ea298641ca782c::1",
+        "fba30366ee8e1438::2",
+        "f3237c668e501ec1::1",
+        "d8ea298641ca782c::2",
+        "fba30366ee8e1438::1"
+      ],
+      "final_evidence_count": 5,
+      "insufficient_evidence": false,
+      "answer": "",
+      "verification": {
+        "unavailable": true,
+        "reason": "No generated answer to verify.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 1.0,
+          "precision_at_5": 0.4,
+          "precision_at_10": 0.25
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.03785199987760279,
+        "retrieval_ms": 2198.6684109999715,
+        "rerank_ms": 0.11750600015147938,
+        "generation_ms": 0.0,
+        "verification_ms": 0.0,
+        "judge_ms": 0.0,
+        "total_ms": 2198.954977000085
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q21",
+      "question": "Which physical structures do mangroves and kelp forests use to shelter other marine life, and which animals does each protect?",
+      "category": "multi_hop",
+      "difficulty": "hard",
+      "expected_answer": "Mangroves shelter juvenile fish and shrimp in their tangled prop-root mats; kelp forests shelter small invertebrates in their holdfasts and give cover to fish and seals beneath the surface canopy.",
+      "expected_sources": [
+        "6bdc91f0a7a20e3c",
+        "48a12d8e4a0af28f"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "d8ea298641ca782c::1",
+        "f3237c668e501ec1::1",
+        "48a12d8e4a0af28f::2",
+        "bf6068140572a279::2",
+        "bf6068140572a279::1",
+        "48a12d8e4a0af28f::1",
+        "6bdc91f0a7a20e3c::1",
+        "6d6214e2ea752b7e::1",
+        "d8ea298641ca782c::2",
+        "fba30366ee8e1438::2",
+        "d885609962c2e694::1",
+        "fc0198a6255be596::1"
+      ],
+      "retrieved_source_ids": [
+        "d8ea298641ca782c",
+        "f3237c668e501ec1",
+        "48a12d8e4a0af28f",
+        "bf6068140572a279",
+        "6bdc91f0a7a20e3c",
+        "6d6214e2ea752b7e",
+        "fba30366ee8e1438",
+        "d885609962c2e694",
+        "fc0198a6255be596"
+      ],
+      "final_evidence_ids": [],
+      "final_evidence_count": 5,
+      "insufficient_evidence": true,
+      "answer": "The available evidence is insufficient to answer the question.",
+      "verification": {
+        "unavailable": true,
+        "reason": "Verification skipped: no evidence was available to ground or verify this answer.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 0.3333,
+          "precision_at_5": 0.4,
+          "precision_at_10": 0.2222
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.04865699997935735,
+        "retrieval_ms": 1578.5892240000976,
+        "rerank_ms": 0.2271509999900445,
+        "generation_ms": 0.0,
+        "verification_ms": 0.028489999976955005,
+        "judge_ms": 0.0,
+        "total_ms": 1579.132798000046
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q22",
+      "question": "According to the corpus, what happens to the stored carbon in a coastal wetland if the wetland is drained or dredged?",
+      "category": "evidence_specific",
+      "difficulty": "easy",
+      "expected_answer": "Draining or dredging a wetland exposes the soil and can release the stored carbon back into the atmosphere.",
+      "expected_sources": [
+        "6d6214e2ea752b7e"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "6d6214e2ea752b7e::2",
+        "6d6214e2ea752b7e::1",
+        "bf6068140572a279::1",
+        "d885609962c2e694::1",
+        "48a12d8e4a0af28f::2",
+        "f81c62370df96fe4::1",
+        "d8ea298641ca782c::2",
+        "6bdc91f0a7a20e3c::1",
+        "fc0198a6255be596::1",
+        "48a12d8e4a0af28f::1",
+        "6bdc91f0a7a20e3c::2",
+        "bf6068140572a279::2"
+      ],
+      "retrieved_source_ids": [
+        "6d6214e2ea752b7e",
+        "bf6068140572a279",
+        "d885609962c2e694",
+        "48a12d8e4a0af28f",
+        "f81c62370df96fe4",
+        "d8ea298641ca782c",
+        "6bdc91f0a7a20e3c",
+        "fc0198a6255be596"
+      ],
+      "final_evidence_ids": [
+        "6d6214e2ea752b7e::2",
+        "6d6214e2ea752b7e::1",
+        "bf6068140572a279::1",
+        "d885609962c2e694::1",
+        "48a12d8e4a0af28f::2"
+      ],
+      "final_evidence_count": 5,
+      "insufficient_evidence": false,
+      "answer": "",
+      "verification": {
+        "unavailable": true,
+        "reason": "No generated answer to verify.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 1.0,
+          "precision_at_5": 0.2,
+          "precision_at_10": 0.125
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.016614000060144463,
+        "retrieval_ms": 1290.3754760000083,
+        "rerank_ms": 0.06509900003948133,
+        "generation_ms": 0.0,
+        "verification_ms": 0.0,
+        "judge_ms": 0.0,
+        "total_ms": 1290.5289479999738
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q23",
+      "question": "According to the corpus, why are the cold polar seas expected to become corrosive to carbonate shells first under future acidification scenarios?",
+      "category": "evidence_specific",
+      "difficulty": "easy",
+      "expected_answer": "Because cold water holds more dissolved CO2 and is naturally lower in carbonate ions.",
+      "expected_sources": [
+        "f3237c668e501ec1"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "f3237c668e501ec1::1",
+        "fba30366ee8e1438::2",
+        "48a12d8e4a0af28f::1",
+        "d8ea298641ca782c::1",
+        "6d6214e2ea752b7e::2",
+        "fba30366ee8e1438::1",
+        "6d6214e2ea752b7e::1",
+        "d885609962c2e694::2",
+        "48a12d8e4a0af28f::2",
+        "bf6068140572a279::1",
+        "f81c62370df96fe4::1",
+        "bf6068140572a279::2"
+      ],
+      "retrieved_source_ids": [
+        "f3237c668e501ec1",
+        "fba30366ee8e1438",
+        "48a12d8e4a0af28f",
+        "d8ea298641ca782c",
+        "6d6214e2ea752b7e",
+        "d885609962c2e694",
+        "bf6068140572a279",
+        "f81c62370df96fe4"
+      ],
+      "final_evidence_ids": [
+        "f3237c668e501ec1::1",
+        "fba30366ee8e1438::2",
+        "48a12d8e4a0af28f::1",
+        "d8ea298641ca782c::1",
+        "6d6214e2ea752b7e::2"
+      ],
+      "final_evidence_count": 5,
+      "insufficient_evidence": false,
+      "answer": "",
+      "verification": {
+        "unavailable": true,
+        "reason": "No generated answer to verify.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 1.0,
+          "precision_at_5": 0.2,
+          "precision_at_10": 0.125
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.010389999943072326,
+        "retrieval_ms": 1836.747411000033,
+        "rerank_ms": 0.11294000000816595,
+        "generation_ms": 0.0,
+        "verification_ms": 0.0,
+        "judge_ms": 0.0,
+        "total_ms": 1836.9688499999484
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "generation_unavailable"
+    },
+    {
+      "question_id": "q24",
+      "question": "Which species of penguin nests among the prop roots of mangrove trees?",
+      "category": "unanswerable",
+      "difficulty": "easy",
+      "expected_answer": "Not answerable from the fixed corpus: no ingested source mentions penguins.",
+      "expected_sources": [],
+      "unanswerable": true,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "6bdc91f0a7a20e3c::1",
+        "6bdc91f0a7a20e3c::2",
+        "fc0198a6255be596::1",
+        "48a12d8e4a0af28f::1",
+        "ba8539a11ede6439::1",
+        "f3237c668e501ec1::1",
+        "d885609962c2e694::2",
+        "d885609962c2e694::1",
+        "bf6068140572a279::1",
+        "6d6214e2ea752b7e::1",
+        "48a12d8e4a0af28f::2",
+        "d8ea298641ca782c::2"
+      ],
+      "retrieved_source_ids": [
+        "6bdc91f0a7a20e3c",
+        "fc0198a6255be596",
+        "48a12d8e4a0af28f",
+        "ba8539a11ede6439",
+        "f3237c668e501ec1",
+        "d885609962c2e694",
+        "bf6068140572a279",
+        "6d6214e2ea752b7e",
+        "d8ea298641ca782c"
+      ],
+      "final_evidence_ids": [
+        "6bdc91f0a7a20e3c::1",
+        "6bdc91f0a7a20e3c::2",
+        "fc0198a6255be596::1",
+        "48a12d8e4a0af28f::1",
+        "ba8539a11ede6439::1"
+      ],
+      "final_evidence_count": 5,
+      "insufficient_evidence": false,
+      "answer": "",
+      "verification": {
+        "unavailable": true,
+        "reason": "No generated answer to verify.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 0.0,
+          "recall_at_10": 0.0,
+          "mrr": 0.0,
+          "precision_at_5": 0.0,
+          "precision_at_10": 0.0
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.04001699994660157,
+        "retrieval_ms": 2279.6374930001093,
+        "rerank_ms": 0.037446000078489305,
+        "generation_ms": 0.0,
+        "verification_ms": 0.0,
+        "judge_ms": 0.0,
+        "total_ms": 2279.867901999978
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "unanswerable_missed",
+      "unanswerable_result": {
+        "passed": false,
+        "insufficient_evidence": false,
+        "retrieved_source_ids": [
+          "6bdc91f0a7a20e3c",
+          "fc0198a6255be596",
+          "48a12d8e4a0af28f",
+          "ba8539a11ede6439",
+          "f3237c668e501ec1",
+          "d885609962c2e694",
+          "bf6068140572a279",
+          "6d6214e2ea752b7e",
+          "d8ea298641ca782c"
+        ],
+        "final_evidence_count": 5
+      }
+    },
+    {
+      "question_id": "q25",
+      "question": "What is the greatest depth at which the bioluminescent deep-sea anglerfish has ever been recorded?",
+      "category": "unanswerable",
+      "difficulty": "medium",
+      "expected_answer": "Not answerable from the fixed corpus: no ingested source mentions bioluminescence or anglerfish.",
+      "expected_sources": [],
+      "unanswerable": true,
+      "strategy": "STANDARD",
+      "router_fell_back": true,
+      "subqueries": [],
+      "retrieved_ids": [
+        "48a12d8e4a0af28f::1",
+        "6d6214e2ea752b7e::1",
+        "48a12d8e4a0af28f::2",
+        "fba30366ee8e1438::2",
+        "bf6068140572a279::1",
+        "6bdc91f0a7a20e3c::1",
+        "d885609962c2e694::2",
+        "f3237c668e501ec1::1",
+        "6d6214e2ea752b7e::2",
+        "6bdc91f0a7a20e3c::2",
+        "fc0198a6255be596::1",
+        "fba30366ee8e1438::1"
+      ],
+      "retrieved_source_ids": [
+        "48a12d8e4a0af28f",
+        "6d6214e2ea752b7e",
+        "fba30366ee8e1438",
+        "bf6068140572a279",
+        "6bdc91f0a7a20e3c",
+        "d885609962c2e694",
+        "f3237c668e501ec1",
+        "fc0198a6255be596"
+      ],
+      "final_evidence_ids": [],
+      "final_evidence_count": 5,
+      "insufficient_evidence": true,
+      "answer": "The available evidence is insufficient to answer the question.",
+      "verification": {
+        "unavailable": true,
+        "reason": "Verification skipped: no evidence was available to ground or verify this answer.",
+        "grounded": null,
+        "score": null,
+        "claims": [],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 0.0,
+          "recall_at_10": 0.0,
+          "mrr": 0.0,
+          "precision_at_5": 0.0,
+          "precision_at_10": 0.0
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge not configured; judgment not run.",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": []
+        }
+      },
+      "latency_ms": {
+        "router_ms": 0.005701999953089398,
+        "retrieval_ms": 1268.1591939999635,
+        "rerank_ms": 0.05184700012250687,
+        "generation_ms": 0.0,
+        "verification_ms": 0.010089999932461069,
+        "judge_ms": 0.0,
+        "total_ms": 1268.2793199999196
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "unavailable",
+      "outcome": "unanswerable_handled",
+      "unanswerable_result": {
+        "passed": true,
+        "insufficient_evidence": true,
+        "retrieved_source_ids": [
+          "48a12d8e4a0af28f",
+          "6d6214e2ea752b7e",
+          "fba30366ee8e1438",
+          "bf6068140572a279",
+          "6bdc91f0a7a20e3c",
+          "d885609962c2e694",
+          "f3237c668e501ec1",
+          "fc0198a6255be596"
+        ],
+        "final_evidence_count": 5
+      }
+    }
+  ]
+}

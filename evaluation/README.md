@@ -5,22 +5,29 @@ benchmark dataset** that Phase 6 (metrics) and Phase 7 (baseline-vs-improved)
 must run against. Phase 5 implements no metrics, scoring, or comparison logic —
 it only pins down *what* the later phases will measure and scores nothing.
 
+> **Phase 6** (metrics + result recording) is documented in §8 below; it adds
+> `metrics.py`, `run_evaluation.py`, `results/`, and `tests/test_metrics.py`.
+
 ## Layout
 
 ```text
 evaluation/
 |-- README.md                        # this file
 |-- eval_embeddings.py               # deterministic, API-free embeddings (shared by ingest/verify/tests and Phase 6-7)
+|-- metrics.py                       # Phase 6: metric definitions + LLM judge (importable, no side effects)
+|-- run_evaluation.py                # Phase 6: full benchmark runner, persists results/ files
 |-- corpus/
 |   |-- corpus.json                  # the canonical fixed corpus text (immutable for Phases 6-7)
 |   `-- manifest.json                # record of the real ingestion: source_id (hex) <-> corpus_id (name)
 |-- benchmark/
 |   `-- benchmark_v1.json            # v1.0.0 benchmark: 25 questions with grounded ground truth
+|-- results/                         # Phase 6: per-question + aggregate results files (Phase 7 input)
 |-- scripts/
 |   |-- ingest_corpus.py             # seeds the persistent Chroma store with the corpus
 |   `-- verify_benchmark.py          # retrieval-based verification harness (run before trusting the file)
 `-- tests/
-    `-- test_benchmark.py            # hermetic schema/grounding/distribution tests
+    |-- test_benchmark.py            # Phase 5 hermetic schema/grounding/distribution tests
+    `-- test_metrics.py              # Phase 6 unit + integration tests for the metrics harness
 ```
 
 ## 1. The fixed corpus
@@ -190,3 +197,169 @@ Phase 1–4 modification: run from `backend/` with `python -m pytest tests/ -q`.
 - **Multi-hop is 2-hop.** Every multi-hop question combines exactly two sources;
   none requires three sources. This matches the router's 2–3 subquery design but
   does not exercise the deepest case.
+
+---
+
+## 8. Phase 6 — Metrics and result recording
+
+Phase 6 computes **retrieval metrics** (Recall@K, MRR) and **LLM-judge
+generation metrics** (correctness, groundedness, citation_correctness) over the
+fixed benchmark and **persists every result** for Phase 7. It changed no Phase
+1–5 library code, no corpus, and no benchmark data.
+
+### 8.1 Files
+
+- `metrics.py` — pure metric definitions + the `LLMJudge` class (importable by
+  tests with zero side effects).
+- `run_evaluation.py` — CLI runner that drives the real pipeline
+  (router → retrieve → rerank → insufficient gate → generate → verify → judge)
+  for every question programmatically (not through the HTTP API).
+- `results/run_<UTC>.json` — per-question + aggregate results (Phase 7 input).
+- `tests/test_metrics.py` — 50 hermetic + integration tests (see §8.6).
+
+Run full:
+
+```bash
+python -m evaluation.run_evaluation                    # full 25 questions
+python -m evaluation.run_evaluation --limit 3          # smoke subset
+python -m evaluation.run_evaluation --skip-judge       # no Gemini judge client
+```
+
+### 8.2 The Recall@K matching rule (documented, applied consistently)
+
+`expected_sources` are **source-level** ids; retrieval returns **chunk-level**
+candidates carrying `source_id`. The harness therefore **deduplicates the
+retrieved chunk ranking by `source_id`, preserving first-seen order**, and
+scores that source-id ranking against expected source ids. Recall@K =
+(# expected sources present in the top K deduped source ids) / (total expected
+sources). MRR = 1/(rank of the first expected source in that deduped ranking),
+else 0. This is exactly the level Phase 5's `verify_benchmark.py` compared at,
+so the metrics are comparable and immune to chunk-counting artifacts.
+
+- Per-question Recall@K/MRR are computed from the **retrieval candidate
+  ranking** (Chroma similarity order), not from the reranked evidence, so they
+  measure retrieval quality directly and independently of the reranker and of
+  the insufficient-evidence gate.
+- Empty retrieval → Recall@K = 0 and MRR = 0, never an error.
+
+### 8.3 Unanswerable and corpus-drift handling
+
+- **Unanswerable questions** (`expected_sources == []`) are **excluded from
+  Recall@K/MRR aggregation** (`answerable_count` = 23 of 25). They are scored
+  separately: a pass/fail signal records whether the system hit Phase 3's
+  insufficient-evidence gate (`evidence_is_sufficient` with
+  `ROUTER_RELEVANCE_THRESHOLD`), plus the retrieved source ids and final
+  evidence count for context.
+- **Corpus drift** (an `expected_sources` id missing from the live store) is
+  detected per question and flagged in `corpus_drift` — never silently scored
+  as an ordinary miss. None was present in this run.
+- **Insufficient-evidence questions** (incl. unanswerable ones caught by the
+  gate) are judged on their **stated insufficiency** answer; the judge is told
+  the evidence was insufficient so "grounded by construction" applies. Offline
+  (no API key) the insufficiency-only proxy
+  `"The available evidence is insufficient to answer the question."` is
+  recorded when the gate trips, so the answer slot is never silently empty.
+
+### 8.4 LLM-judge scoring definitions (consistent 0–1 scale)
+
+The judge is a structured Gemini call (same
+`os.getenv`/threaded-timeout/JSON-extraction pattern as the reranker/verifier)
+returning `{"correctness", "groundedness", "citation_correctness"}`.
+
+- **correctness** — how much of the info in `expected_answer` the generated
+  answer conveys: 1.0 = all required info, no contradiction; 0.0 = none or
+  outright contradiction; intermediates for partial coverage.
+- **groundedness** — whether every claim in the generated answer is supported
+  by the evidence actually used: 1.0 = all claims supported (or a stated
+  insufficiency with empty/below-threshold evidence); 0.0 = invented/
+  unsupported claims.
+- **citation_correctness** — whether the cited evidence (the chunk ids the
+  answer was generated from) actually supports the answer's claims: 1.0 =
+  every claim attributable to a cited chunk; 0.0 = citations do not support
+  the claims.
+
+Every judge output is validated (valid JSON, all three fields present, each a
+number in [0,1]); a failure, timeout, malformed JSON, or out-of-range score is
+recorded as **unavailable** (never 0, never silently dropped).
+
+### 8.5 Result file schema
+
+```jsonc
+{
+  "run":   { "timestamp", "benchmark_version", "question_count", "api_available",
+             "judge_model", "embedding", "k_candidates", "final_k" },
+  "aggregates": {
+    "retrieval": { "answerable_count", "recall_at_5", "recall_at_10", "mrr",
+                   "precision_at_5", "precision_at_10" },
+    "unanswerable": { "count", "correctly_handled", "miscount" },
+    "judge":        { "total", "available", "unavailable", "correctness_mean",
+                      "groundedness_mean", "citation_correctness_mean" },
+    "corpus_drift": { "count", "questions" }, "errors": [...]
+  },
+  "per_question": [
+    { "question_id", "question", ..., "strategy", "retrieved_ids",
+      "retrieved_source_ids", "final_evidence_ids", "insufficient_evidence",
+      "answer", "verification", "metrics": {"retrieval": {...}, "judge": {...}},
+      "latency_ms": {"router/retrieval/rerank/generation/verification/judge/total"},
+      "corpus_drift", "generation_status",
+      "outcome": "complete|generation_unavailable|generation_skipped|"
+                 "unanswerable_handled|unanswerable_missed|verification_unavailable|error",
+      "unanswerable_result": {...}     // unanswerable only
+    }
+  ]
+}
+```
+
+Phase 7 loads this file (and a second one for the improved pipeline) to compare
+Recall@5/@10 and MRR plus judge means between runs.
+
+### 8.6 Phase 6 test results
+
+```bash
+python -m pytest evaluation/tests/test_metrics.py -v   # 50 passed (incl. 3 slow integration)
+python -m pytest evaluation/tests/test_benchmark.py -q # 14 passed (Phase 5 unchanged)
+cd backend && python -m pytest tests/ -q               # 106 passed (Phases 1–4 unchanged)
+```
+
+Covered: synthetic Recall@K for K=5/10; MRR incl. no-relevant→0; unanswerable
+exclusion + separate scoring; judge well-formed/out-of-range/malformed/timeout
+behavior (via a fake Gemini client); full-run integration over the real
+benchmark producing a results file; corpus-drift flagging.
+
+### 8.7 Recorded aggregate results (offline run, no GOOGLE_API_KEY)
+
+The environment has no `GOOGLE_API_KEY`, so generation/judge stages degrade
+gracefully (recorded as unavailable) while retrieval metrics are fully
+computed. From `evaluation/results/run_20260913T122137.json`:
+
+- **Recall@5 = 0.9783, Recall@10 = 1.0000, MRR = 0.9275** over the 23
+  answerable questions. The single sub-perfect Recall@5 is q17 (comparison):
+  Coral Reef Biology ranks 1st but Kelp Forests ranks 6th, giving recall@5 =
+  0.5 (recall@10 = 1.0, MRR = 1.0).
+- **Unanswerable**: 2 questions, 1 correctly handled (q25 flagged
+  insufficient; q24 missed because its mangrove-related vocabulary retrieves
+  mangroves lexically above the Phase 3 relevance threshold). Excluded from
+  Recall@K/MRR.
+- **Precision@5 = 0.2522, Precision@10 = 0.1561** — precision was included
+  (negligible extra code over Recall@K), but the corpus is small so chunk-level
+  retrieval over 11 sources keeps source-level precision low.
+- **Judge**: 25/25 unavailable (no API key) — the distinguishing behavior
+  required by the spec, not zeros.
+- 5 answerable questions trip Phase 3's insufficient gate offline (max
+  deterministic similarity below 0.15, e.g. kelp retrieval peaks at ~0.12), so
+  their generation slots record an insufficiency proxy rather than a fabricated
+  answer.
+
+### 8.8 Known limitations
+
+- **Judge metrics require GOOGLE_API_KEY.** This run records them as
+  unavailable; with a key set, `run_evaluation` automatically runs the real
+  Gemini judge and records per-question 0–1 scores plus means.
+- **Structured-output judgement is model-dependent**; judge scores on the same
+  question can vary across models/temps. The judge uses `temperature=0` and
+  exact numeric anchors in the prompt to reduce this.
+- **Small benchmark (25 questions)**: aggregate retrieval values are driven by
+  one or two questions; treat deltas in Phase 7 with that in mind.
+- **Offline insufficiency gate**: without a reranker client the gate falls back
+  to Chroma similarity (Phase 3's documented fallback path); a phase with real
+  reranking may reach different insufficiency outcomes.
