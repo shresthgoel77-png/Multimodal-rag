@@ -388,7 +388,7 @@ async def _run_question(
             "errors": [],
         }
     elif answer and answer.strip():
-        judge_result, judge_ms = _atimed(
+        judge_result, judge_ms = _timed(
             judge.judge,
             question=question_text,
             expected_answer=expected_answer,

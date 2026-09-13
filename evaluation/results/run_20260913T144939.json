@@ -1,0 +1,189 @@
+{
+  "run": {
+    "timestamp": "2026-09-13T14:49:39.199815+00:00",
+    "benchmark_name": "multimodal-rag-benchmark",
+    "benchmark_version": "1.0.0",
+    "benchmark_path": "/home/shresth/Desktop/Multimodal rag/evaluation/benchmark/benchmark_v1.json",
+    "question_count": 1,
+    "api_available": true,
+    "skip_judge": false,
+    "judge_model": "gemini-3-flash-preview",
+    "embedding": {
+      "embedding_provider": "deterministic-feature-hash",
+      "dimensions": 768
+    },
+    "k_candidates": 12,
+    "final_k": 5
+  },
+  "aggregates": {
+    "retrieval": {
+      "answerable_count": 1,
+      "recall_at_5": 1.0,
+      "recall_at_10": 1.0,
+      "mrr": 1.0,
+      "precision_at_5": 0.2,
+      "precision_at_10": 0.1
+    },
+    "unanswerable": {
+      "count": 0,
+      "correctly_handled": 0,
+      "miscount": 0
+    },
+    "judge": {
+      "total": 1,
+      "available": 0,
+      "unavailable": 1
+    },
+    "corpus_drift": {
+      "count": 0,
+      "questions": []
+    },
+    "errors": []
+  },
+  "per_question": [
+    {
+      "question_id": "q01",
+      "question": "What are the microscopic single-celled algae that live inside coral polyps and supply the coral with sugars from photosynthesis called?",
+      "category": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Zooxanthellae \u2014 the microscopic single-celled algae that live inside coral polyps, photosynthesize, and pass sugars to the coral.",
+      "expected_sources": [
+        "fba30366ee8e1438"
+      ],
+      "unanswerable": false,
+      "strategy": "STANDARD",
+      "router_fell_back": false,
+      "subqueries": [],
+      "retrieved_ids": [
+        "fba30366ee8e1438::1",
+        "f81c62370df96fe4::1",
+        "fc0198a6255be596::1",
+        "f3237c668e501ec1::1",
+        "bf6068140572a279::2",
+        "bf6068140572a279::1",
+        "ba8539a11ede6439::1",
+        "48a12d8e4a0af28f::1",
+        "48a12d8e4a0af28f::2",
+        "6d6214e2ea752b7e::1",
+        "d885609962c2e694::2",
+        "6bdc91f0a7a20e3c::1"
+      ],
+      "retrieved_source_ids": [
+        "fba30366ee8e1438",
+        "f81c62370df96fe4",
+        "fc0198a6255be596",
+        "f3237c668e501ec1",
+        "bf6068140572a279",
+        "ba8539a11ede6439",
+        "48a12d8e4a0af28f",
+        "6d6214e2ea752b7e",
+        "d885609962c2e694",
+        "6bdc91f0a7a20e3c"
+      ],
+      "final_evidence_ids": [
+        "fba30366ee8e1438::1",
+        "f3237c668e501ec1::1",
+        "48a12d8e4a0af28f::1",
+        "48a12d8e4a0af28f::2",
+        "f81c62370df96fe4::1"
+      ],
+      "final_evidence_count": 5,
+      "insufficient_evidence": false,
+      "answer": "The microscopic single-celled algae that live inside coral polyps are called zooxanthellae. These algae form a symbiotic partnership with the coral, providing the polyps with sugars produced through photosynthesis while receiving shelter and nutrients in return.\n\nKey points:\n- Zooxanthellae provide most of the energy corals need to build their calcium carbonate skeletons.\n- This relationship is vital for the health of reef-building corals.\n- When seawater temperatures become too warm, corals may expel these algae, leading to a phenomenon known as coral bleaching.\n- If temperatures return to normal quickly, corals can take up new symbionts and recover.\n\nThe retrieved evidence from the Coral Reef Biology source provides a direct and clear identification of these organisms and their role in the reef ecosystem.",
+      "verification": {
+        "unavailable": false,
+        "reason": "",
+        "grounded": true,
+        "score": 1.0,
+        "claims": [
+          {
+            "claim": "The microscopic single-celled algae that live inside coral polyps are called zooxanthellae.",
+            "supported": true,
+            "evidence_ids": [
+              "fba30366ee8e1438::1"
+            ]
+          },
+          {
+            "claim": "Zooxanthellae provide the polyps with sugars produced through photosynthesis.",
+            "supported": true,
+            "evidence_ids": [
+              "fba30366ee8e1438::1"
+            ]
+          },
+          {
+            "claim": "The coral provides zooxanthellae with shelter and nutrients.",
+            "supported": true,
+            "evidence_ids": [
+              "fba30366ee8e1438::1"
+            ]
+          },
+          {
+            "claim": "Zooxanthellae provide most of the energy corals need to build their calcium carbonate skeletons.",
+            "supported": true,
+            "evidence_ids": [
+              "fba30366ee8e1438::1"
+            ]
+          },
+          {
+            "claim": "The relationship between corals and zooxanthellae is vital for the health of reef-building corals.",
+            "supported": true,
+            "evidence_ids": [
+              "fba30366ee8e1438::1"
+            ]
+          },
+          {
+            "claim": "When seawater temperatures become too warm, corals may expel these algae, leading to coral bleaching.",
+            "supported": true,
+            "evidence_ids": [
+              "fba30366ee8e1438::1",
+              "f3237c668e501ec1::1"
+            ]
+          },
+          {
+            "claim": "If temperatures return to normal quickly, corals can take up new symbionts and recover.",
+            "supported": true,
+            "evidence_ids": [
+              "fba30366ee8e1438::1"
+            ]
+          }
+        ],
+        "unsupported_claims": [],
+        "errors": []
+      },
+      "metrics": {
+        "retrieval": {
+          "recall_at_5": 1.0,
+          "recall_at_10": 1.0,
+          "mrr": 1.0,
+          "precision_at_5": 0.2,
+          "precision_at_10": 0.1
+        },
+        "judge": {
+          "status": "unavailable",
+          "reason": "Judge call failed (429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 5, model: gemini-3-flash\\nPlease retry in 20.836942413s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerMinutePerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3-flash'}, 'quotaValue': '5'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '20s'}]}}).",
+          "correctness": null,
+          "groundedness": null,
+          "citation_correctness": null,
+          "errors": [
+            "429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 5, model: gemini-3-flash\\nPlease retry in 20.836942413s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerMinutePerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3-flash'}, 'quotaValue': '5'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '20s'}]}}"
+          ]
+        }
+      },
+      "latency_ms": {
+        "router_ms": 3473.786735000431,
+        "retrieval_ms": 940.5603860000156,
+        "rerank_ms": 7658.940633000384,
+        "generation_ms": 8284.44185699982,
+        "verification_ms": 14053.869630999998,
+        "judge_ms": 840.9889800000201,
+        "total_ms": 36135.27532699982
+      },
+      "corpus_drift": {
+        "present": false,
+        "missing_sources": []
+      },
+      "generation_status": "complete",
+      "outcome": "complete"
+    }
+  ]
+}

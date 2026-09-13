@@ -1,0 +1,60 @@
+{
+  "run": {
+    "timestamp": "2026-09-13T14:41:18.482078+00:00",
+    "benchmark_name": "multimodal-rag-benchmark",
+    "benchmark_version": "1.0.0",
+    "benchmark_path": "/home/shresth/Desktop/Multimodal rag/evaluation/benchmark/benchmark_v1.json",
+    "question_count": 1,
+    "api_available": true,
+    "skip_judge": false,
+    "judge_model": "gemini-3-flash-preview",
+    "embedding": {
+      "embedding_provider": "deterministic-feature-hash",
+      "dimensions": 768
+    },
+    "k_candidates": 12,
+    "final_k": 5
+  },
+  "aggregates": {
+    "retrieval": {
+      "answerable_count": 1,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "mrr": 0.0,
+      "precision_at_5": 0.0,
+      "precision_at_10": 0.0
+    },
+    "unanswerable": {
+      "count": 0,
+      "correctly_handled": 0,
+      "miscount": 0
+    },
+    "judge": {
+      "total": 0,
+      "available": 0,
+      "unavailable": 0
+    },
+    "corpus_drift": {
+      "count": 0,
+      "questions": []
+    },
+    "errors": [
+      "q01: \nOn how to mitigate this issue, please refer to:\n\nhttps://google.github.io/adk-docs/agents/models/google-gemini/#error-code-429-resource_exhausted\n\n\n429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3-flash\\nPlease retry in 41.654477958s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '41s'}]}}"
+    ]
+  },
+  "per_question": [
+    {
+      "question_id": "q01",
+      "question": "What are the microscopic single-celled algae that live inside coral polyps and supply the coral with sugars from photosynthesis called?",
+      "category": "factual",
+      "difficulty": "easy",
+      "expected_answer": "Zooxanthellae \u2014 the microscopic single-celled algae that live inside coral polyps, photosynthesize, and pass sugars to the coral.",
+      "expected_sources": [
+        "fba30366ee8e1438"
+      ],
+      "unanswerable": false,
+      "error": "\nOn how to mitigate this issue, please refer to:\n\nhttps://google.github.io/adk-docs/agents/models/google-gemini/#error-code-429-resource_exhausted\n\n\n429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3-flash\\nPlease retry in 41.654477958s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '41s'}]}}",
+      "outcome": "error"
+    }
+  ]
+}
