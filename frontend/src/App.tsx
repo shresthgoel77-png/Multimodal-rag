@@ -306,14 +306,14 @@ function VectorSpace({
     scene.add(frameGroup);
     scene.add(pointGroup);
 
-    const grid = new THREE.GridHelper(10, 20, 0xf54e00, 0x303126);
+    const grid = new THREE.GridHelper(10, 20, 0x3b82f6, 0x303126);
     grid.position.y = -2.8;
     grid.material.opacity = 0.28;
     grid.material.transparent = true;
     frameGroup.add(grid);
 
     const axes = [
-      [new THREE.Vector3(-4.8, -2.6, -2.8), new THREE.Vector3(4.8, -2.6, -2.8), 0xf54e00],
+      [new THREE.Vector3(-4.8, -2.6, -2.8), new THREE.Vector3(4.8, -2.6, -2.8), 0x3b82f6],
       [new THREE.Vector3(-4.8, -2.6, -2.8), new THREE.Vector3(-4.8, 2.8, -2.8), 0x9fc9a2],
       [new THREE.Vector3(-4.8, -2.6, -2.8), new THREE.Vector3(-4.8, -2.6, 2.8), 0x9fbbe0],
     ] as const;
@@ -355,7 +355,7 @@ function VectorSpace({
       if (isQuery || isMatched) {
         const haloMaterial = new THREE.SpriteMaterial({
           map: glowTexture,
-          color: new THREE.Color(isQuery ? "#f54e00" : point.color),
+          color: new THREE.Color(isQuery ? "#3b82f6" : point.color),
           transparent: true,
           opacity: isQuery ? 0.32 : 0.24,
           depthWrite: false,
@@ -1184,7 +1184,7 @@ export default function App() {
                   <button
                     className="citation-row"
                     key={match.id}
-                    onMouseEnter={() => setSelectedPoint({ ...match, color: "#f54e00", preview: match.text })}
+                    onMouseEnter={() => setSelectedPoint({ ...match, color: "#3b82f6", preview: match.text })}
                     onMouseLeave={() => setSelectedPoint(null)}
                   >
                     <div className="citation-top">
