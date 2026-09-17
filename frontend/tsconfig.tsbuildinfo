@@ -1,1 +1,1 @@
-{"root":["./src/App.tsx","./src/main.tsx","./src/vite-env.d.ts"],"version":"5.9.3"}
+{"root":["./src/App.tsx","./src/main.tsx","./src/types.ts","./src/vite-env.d.ts","./src/components/AnswerContent.tsx","./src/components/EvaluationPanel.tsx","./src/components/PipelinePanel.tsx","./src/components/SourceRow.tsx","./src/components/VectorSpace.tsx","./src/lib/api.ts","./src/lib/constants.ts","./src/lib/format.ts","./src/lib/modalityIcon.ts"],"version":"5.9.3"}
