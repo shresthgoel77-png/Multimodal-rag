@@ -161,6 +161,39 @@ p {
   text-transform: uppercase;
 }
 
+.app-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: var(--canvas-soft);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  min-height: 32px;
+  margin: 0 auto;
+}
+
+.app-nav button {
+  min-height: 24px;
+  border: 0;
+  background: transparent;
+  color: var(--body);
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.app-nav button.active {
+  background: var(--surface-strong);
+  color: var(--ink);
+  border: 1px solid var(--hairline-strong);
+}
+
 .workspace {
   width: 100%;
   max-width: 1680px;

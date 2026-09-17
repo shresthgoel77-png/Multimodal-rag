@@ -59,6 +59,7 @@ export default function App() {
   const [qaStatus, setQaStatus] = useState("");
   const [qaError, setQaError] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [activeView, setActiveView] = useState<"workspace" | "sources" | "evaluation">("workspace");
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   const points = useMemo(() => space?.points ?? [], [space]);
@@ -215,6 +216,37 @@ export default function App() {
             <p>Gemini Embedding 2 · Google ADK</p>
           </div>
         </div>
+
+        <nav className="app-nav" role="tablist" aria-label="Workspace sections">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeView === "workspace"}
+            className={activeView === "workspace" ? "active" : ""}
+            onClick={() => setActiveView("workspace")}
+          >
+            Workspace
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeView === "sources"}
+            className={activeView === "sources" ? "active" : ""}
+            onClick={() => setActiveView("sources")}
+          >
+            Sources
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeView === "evaluation"}
+            className={activeView === "evaluation" ? "active" : ""}
+            onClick={() => setActiveView("evaluation")}
+          >
+            Evaluation
+          </button>
+        </nav>
+
         <div className="status-strip">
           <span><RadioTower size={14} /> {provider}</span>
           <span><Box size={14} /> {pointCount} points</span>
