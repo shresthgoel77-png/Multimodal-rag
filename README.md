@@ -1,10 +1,8 @@
-# Multimodal Agentic RAG
+# Aether
 
 A multimodal RAG app built with Gemini Embedding 2 and Google ADK. Add text, URLs, PDFs, images, audio, or video; ask a question; and get a grounded answer with citations, a pipeline trace, and a 3D embedding view.
 
 The UI includes a 3D embedding view for inspecting the search space. Each source appears as one point. When you ask a question, the query is projected into the same space and the cited sources are highlighted.
-
-![Architecture diagram](assets/multimodal-agentic-rag-architecture.png)
 
 ## Tech Stack
 
