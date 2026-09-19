@@ -6,16 +6,25 @@ The UI includes a 3D embedding view for inspecting the search space. Each source
 
 ![Architecture diagram](assets/multimodal-agentic-rag-architecture.png)
 
+## Tech Stack
+
+- **Python (FastAPI)**: High-performance backend orchestration and API layer.
+- **TypeScript (React + Vite)**: Modern, responsive frontend featuring recent UI improvements and a consistent header navigation bar.
+- **ChromaDB**: Local, persistent vector database for storing and querying multimodal chunks seamlessly across restarts.
+- **Gemini Embedding 2**: 768-dimensional embeddings for sources and queries.
+- **Google ADK**: Agentic framework orchestrating grounded generative answers based on retrieved evidence.
+
 ## What It Does
 
-- Adds and removes multimodal sources from a local persistent (ChromaDB) index.
+- Adds and removes multimodal sources from a fully integrated, local persistent ChromaDB index.
+- Offers an enhanced frontend with significant UI improvements, including a new header navigation bar allowing seamless switching between Q&A, citations, traces, 3D embeddings, and evaluations.
 - Uses Gemini Embedding 2 for source and query embeddings (768 dimensions).
 - Requires `GOOGLE_API_KEY`; there are no local embedding or answer fallbacks.
 - Classifies each question (STANDARD / COMPLEX / MULTI_HOP), retrieves candidates, reranks with Gemini, generates a grounded answer via a Google ADK agent, and runs a heuristic grounding check.
 - Every Gemini-dependent stage degrades explicitly: reranker/router/verifier failures fall back or are marked unavailable, never silently.
 - Shows citations separately from the answer text so citation IDs do not clutter the response.
 - Projects source and query vectors into a 3D PCA view for inspection.
-- Ships a fixed 25-question benchmark with retrieval metrics, an LLM judge, and a baseline-vs-improved comparison, all viewable in the UI.
+- Ships a robust, verified evaluation pipeline and a fixed 25-question benchmark with retrieval metrics, an LLM judge, and a baseline-vs-improved comparison, all viewable in the UI.
 
 ## Architecture
 
